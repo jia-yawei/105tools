@@ -1,0 +1,1652 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Embedded Studio - 嵌入式开发工具</title>
+    <style>
+        :root {
+            --bg-color: #f0f2f5;
+            --text-color: #333333;
+            --panel-bg: #ffffff;
+            --border-color: #dcdfe6;
+            --primary-color: #409eff;
+            --hover-color: #66b1ff;
+            --mark-color: #909399;
+            --len-color: #409eff;
+            --addr-color: #67c23a;
+            --type-color: #e6a23c;
+            --data-color: #f56c6c;
+            --csum-color: #8e44ad;
+            --error-color: #f56c6c;
+            --success-color: #67c23a;
+            --table-header-bg: #f2f6fc;
+            --table-row-hover: #f5f7fa;
+            --drop-border: #c0c4cc;
+            --box-shadow: 0 2px 12px 0 rgba(0,0,0,0.1);
+            --stat-bg: #fafafa;
+        }
+
+        :root[data-theme="dark"] {
+            --bg-color: #121212;
+            --text-color: #e0e0e0;
+            --panel-bg: #1e1e1e;
+            --border-color: #333333;
+            --primary-color: #3a8ee6;
+            --hover-color: #4a9ff7;
+            --table-header-bg: #2d2d2d;
+            --table-row-hover: #2a2a2a;
+            --drop-border: #444444;
+            --box-shadow: 0 4px 16px 0 rgba(0,0,0,0.3);
+            --stat-bg: #252525;
+            --success-color: #4caf50;
+            --error-color: #ef5350;
+            --mark-color: #7a7a7a;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 10px 20px;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            box-sizing: border-box;
+            overflow: hidden;
+            gap: 10px;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        h1 { margin: 5px 0 0 0; font-size: 22px; text-align: center; flex-shrink: 0; }
+        
+        .header-actions {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .icon-btn {
+            background: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            transition: all 0.2s;
+        }
+        .icon-btn:hover { box-shadow: var(--box-shadow); border-color: var(--primary-color); }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            background-color: var(--panel-bg);
+            padding: 12px 15px;
+            border-radius: 8px;
+            box-shadow: var(--box-shadow);
+            border: 1px solid var(--border-color);
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+
+        .controls { display: flex; gap: 10px; align-items: center; }
+        input[type="file"] { display: none; }
+
+        .btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.2s;
+            white-space: nowrap;
+        }
+        .btn:hover { background-color: var(--hover-color); }
+        .btn-outline {
+            background-color: transparent;
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+        }
+        .btn-outline:hover { background-color: var(--table-row-hover); border-color: var(--primary-color); }
+        .btn-danger {
+            background-color: transparent;
+            color: var(--error-color);
+            border: 1px solid var(--border-color);
+        }
+        .btn-danger:hover { background-color: #fef0f0; border-color: var(--error-color); }
+        :root[data-theme="dark"] .btn-danger:hover { background-color: rgba(239, 83, 80, 0.1); }
+
+        .search-box {
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 14px;
+            width: 250px;
+            outline: none;
+            background: var(--panel-bg);
+            color: var(--text-color);
+            transition: all 0.2s;
+        }
+        .search-box:focus { border-color: var(--primary-color); }
+        .search-box.error { border-color: var(--error-color); background-color: rgba(245, 108, 108, 0.1); }
+
+        /* Drop Zone */
+        .drop-zone {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border: 2px dashed var(--drop-border);
+            border-radius: 12px;
+            background-color: var(--panel-bg);
+            margin: 20px 0;
+            transition: all 0.3s;
+            color: var(--mark-color);
+        }
+        .drop-zone.dragover {
+            border-color: var(--primary-color);
+            background-color: rgba(64, 158, 255, 0.05);
+            color: var(--primary-color);
+        }
+        .drop-icon { font-size: 48px; margin-bottom: 15px; opacity: 0.7; }
+
+        /* Results Area */
+        #resultsContainer { flex-grow: 1; overflow: hidden; display: flex; flex-direction: column; }
+        
+        .summary-panel {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 10px;
+            margin-top: 5px;
+        }
+
+        .stat-box {
+            background-color: var(--stat-bg);
+            border: 1px solid var(--border-color);
+            padding: 8px 12px;
+            border-radius: 6px;
+            transition: all 0.3s ease;
+        }
+        .stat-box.status-perfect { border-color: var(--success-color); background-color: rgba(103, 194, 58, 0.05); }
+        .stat-box.status-error { border-color: var(--error-color); background-color: rgba(245, 108, 108, 0.05); }
+
+        .stat-value { font-size: 15px; font-weight: bold; color: var(--text-color); margin-top: 4px; font-family: 'Consolas', monospace; }
+        .stat-label { font-size: 12px; color: var(--mark-color); }
+
+        /* Memory Map */
+        .memory-map-container { margin: 20px 0; padding: 15px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--panel-bg); }
+        .memory-map-title { font-size: 14px; color: var(--text-color); font-weight: bold; }
+        .memory-map-bar {
+            width: 100%; height: 24px; background-color: #E5E7EB;
+            border-radius: 4px; display: flex; overflow: hidden; position: relative;
+            margin: 10px 0; box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+        }
+        :root[data-theme="dark"] .memory-map-bar { background-color: #333; }
+        .memory-segment {
+            height: 100%; background-color: var(--success-color);
+            position: absolute; cursor: pointer; transition: opacity 0.2s, box-shadow 0.2s;
+        }
+        .memory-segment:hover { opacity: 0.8; box-shadow: 0 0 8px rgba(0,0,0,0.5); z-index: 10; }
+
+        /* Custom Tooltip */
+        #customTooltip {
+            position: fixed; background: rgba(0,0,0,0.8); color: #fff;
+            padding: 8px 12px; border-radius: 6px; font-size: 12px;
+            pointer-events: none; z-index: 9999; opacity: 0;
+            transition: opacity 0.15s; font-family: 'Consolas', monospace; white-space: pre;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            transform: translate(-50%, -100%); margin-top: -10px;
+        }
+
+        /* Vector Table Collapsible */
+        .vector-table {
+            background-color: var(--stat-bg); border: 1px solid var(--border-color);
+            border-radius: 6px; margin: 10px 0; overflow: hidden;
+            transition: all 0.3s;
+        }
+        .vector-header {
+            padding: 8px 12px; font-size: 13px; font-weight: bold; cursor: pointer;
+            display: flex; justify-content: space-between; user-select: none;
+            color: var(--text-color);
+        }
+        .vector-header:hover { background-color: var(--table-row-hover); }
+        .vector-content { padding: 10px; border-top: 1px solid var(--border-color); display: none; font-size: 13px; font-family: 'Consolas', monospace; color: var(--text-color); }
+        .vector-content.open { display: block; }
+        .vector-item { display: inline-block; width: 250px; margin-bottom: 4px; }
+
+        /* Table */
+        table { width: 100%; border-collapse: collapse; font-family: 'Consolas', monospace; font-size: 15px; }
+        th, td { text-align: left; padding: 6px 10px; border-bottom: 1px solid var(--border-color); }
+        th { background-color: var(--table-header-bg); color: var(--text-color); position: sticky; top: 0; font-size: 13px; z-index: 5; }
+        tr:hover td { background-color: var(--table-row-hover); }
+        @keyframes flashWarningAnim {
+            from { opacity: 1; }
+            to { opacity: 0.4; }
+        }
+        @keyframes highlightFlashLight {
+            0% { background-color: #ffffb8; color: #000; }
+            100% { background-color: transparent; }
+        }
+        @keyframes highlightFlashDark {
+            0% { background-color: #7a6e15; color: #fff; }
+            100% { background-color: transparent; }
+        }
+        .highlight-row td { animation: highlightFlashLight 1s ease-out forwards; }
+        :root[data-theme="dark"] .highlight-row td { animation: highlightFlashDark 1s ease-out forwards; }
+        
+        /* Tabs */
+        .tabs { display: flex; border-bottom: 1px solid var(--border-color); margin-bottom: 15px; align-items: center; }
+        .tab { 
+            padding: 10px 24px; font-size: 15px; font-weight: bold; color: var(--mark-color); 
+            cursor: pointer; transition: all 0.3s; position: relative; border-bottom: 3px solid transparent; 
+        }
+        .tab:hover { color: var(--primary-color); }
+        .tab.active { color: var(--primary-color); border-bottom-color: var(--primary-color); }
+        .tab-content { display: none; flex-direction: column; overflow-y: auto; flex-grow: 1; }
+        .tab-content.active { display: flex; }
+        
+        /* Leaderboard */
+        .leaderboard-item {
+            display: flex; align-items: center; margin-bottom: 8px; font-family: 'Consolas', monospace; font-size: 13px;
+            padding: 6px 10px; border-radius: 6px; transition: all 0.2s ease; border: 1px solid transparent;
+        }
+        .leaderboard-item:hover { 
+            background: var(--panel-bg); 
+            border-color: var(--border-color);
+            transform: translateX(4px); 
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        .lb-rank {
+            width: 24px; height: 24px; display: flex; justify-content: center; align-items: center; 
+            border-radius: 4px; background: var(--border-color); color: var(--text-color); font-weight: bold; margin-right: 12px; font-size: 12px;
+        }
+        .lb-rank.rank-1 { background: linear-gradient(135deg, #ffd700, #ff8c00); color: #fff; box-shadow: 0 2px 5px rgba(255,140,0,0.3); }
+        .lb-rank.rank-2 { background: linear-gradient(135deg, #e0e0e0, #9e9e9e); color: #fff; box-shadow: 0 2px 5px rgba(158,158,158,0.3); }
+        .lb-rank.rank-3 { background: linear-gradient(135deg, #cd7f32, #8b4513); color: #fff; box-shadow: 0 2px 5px rgba(139,69,19,0.3); }
+        
+        .lb-name { width: 35%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text-color); font-weight: 500; }
+        
+        .lb-bar-container {
+            flex-grow: 1; height: 12px; background: var(--border-color); border-radius: 6px; margin: 0 15px;
+            position: relative; overflow: hidden; box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
+        }
+        .lb-bar {
+            height: 100%; border-radius: 6px; 
+            background: linear-gradient(90deg, var(--primary-color), #8e44ad);
+            box-shadow: 0 0 5px rgba(64,158,255,0.4);
+            animation: expandWidth 0.8s cubic-bezier(0.1, 0.8, 0.2, 1) forwards;
+            width: 0;
+        }
+        
+        .lb-size { width: 140px; text-align: right; color: var(--mark-color); font-weight: bold; display: flex; justify-content: flex-end; align-items: center; gap: 8px; }
+        .lb-pct { font-size: 11px; color: var(--type-color); font-weight: normal; width: 45px; text-align: right; }
+        
+        @keyframes expandWidth { from { width: 0%; } }
+
+        .table-container { flex-grow: 1; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 4px; min-height: 0; transition: border-color 0.3s; }
+        
+        .c-mark { color: var(--mark-color); margin-right: 4px; }
+        .c-len { color: var(--len-color); font-weight: bold; margin-right: 4px; }
+        .c-addr { color: var(--addr-color); font-weight: bold; margin-right: 4px; }
+        .c-type { color: var(--type-color); font-weight: bold; margin-right: 4px; }
+        .c-data { color: var(--data-color); word-break: break-all; margin-right: 4px; }
+        .c-csum { color: var(--csum-color); font-weight: bold; }
+        .valid { color: var(--success-color); }
+        .invalid { color: var(--error-color); font-weight: bold; }
+
+        /* Pagination */
+        .pagination { display: flex; justify-content: space-between; align-items: center; padding-top: 8px; font-size: 13px; color: var(--text-color); }
+        .page-controls { display: flex; gap: 5px; align-items: center; }
+        .page-btn { padding: 4px 10px; border: 1px solid var(--border-color); background: var(--panel-bg); color: var(--text-color); border-radius: 4px; cursor: pointer; transition: all 0.2s;}
+        .page-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .page-btn:not(:disabled):hover { border-color: var(--primary-color); color: var(--primary-color); }
+
+        /* Toast */
+        .toast-container { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); z-index: 9999; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
+        .toast-message {
+            background-color: var(--panel-bg); color: var(--text-color); border: 1px solid var(--border-color);
+            padding: 10px 20px; border-radius: 4px; box-shadow: var(--box-shadow);
+            display: flex; align-items: center; gap: 10px; font-size: 14px;
+            opacity: 0; transform: translateY(-20px); transition: all 0.3s;
+        }
+        .toast-message.show { opacity: 1; transform: translateY(0); }
+        
+        .radio-group {
+            display: inline-flex;
+            background: var(--table-header-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-right: 15px;
+        }
+        .radio-group label {
+            padding: 6px 12px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: var(--text-color);
+        }
+        .radio-group input[type="radio"] { display: none; }
+        .radio-group input[type="radio"]:checked + label {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        /* Embedded tools workspace */
+        :root {
+            --workspace-bg: #f5f7f8;
+            --sidebar-bg: #13252b;
+            --sidebar-text: #d9e5e5;
+            --sidebar-muted: #8ea4a7;
+            --accent: #087f7b;
+            --accent-strong: #066b67;
+            --accent-soft: #e4f3f1;
+            --warning: #b86a00;
+        }
+        :root[data-theme="dark"] {
+            --workspace-bg: #111a1c;
+            --sidebar-bg: #0b1517;
+            --sidebar-text: #dce8e8;
+            --sidebar-muted: #87a0a2;
+            --accent: #29a69f;
+            --accent-strong: #48bcb5;
+            --accent-soft: #173532;
+            --warning: #f2a43a;
+        }
+        body {
+            padding: 0;
+            display: block;
+            height: 100vh;
+            overflow: hidden;
+            background: var(--workspace-bg);
+        }
+        button, input, select { font: inherit; }
+    </style>
+</head>
+<body>
+    <div style="padding: 20px; background: #eef2f5; display: flex; flex-direction: column; gap: 18px; min-height: 100vh;">
+            <div class="tool-heading" style="display: flex; justify-content: space-between; align-items: flex-end; gap: 20px;">
+                <div>
+                    <p class="eyebrow" style="color: var(--accent); font-size: 13px; font-weight: 600; margin: 0 0 6px;">FIRMWARE INSPECTION</p>
+                    <h1 class="tool-title" style="margin: 0; color: var(--text-color); font-size: 28px;">HEX 文件分析</h1>
+                </div>
+                <p class="tool-description" style="margin: 0; color: var(--mark-color); font-size: 13px;">本地解析 Intel HEX 与可选 MAP 文件</p>
+            </div>
+            
+            <div class="container" style="flex-shrink: 0; padding: 11px 14px; background: var(--panel-bg); border-radius: 7px;">
+                <div class="controls" style="display: flex; gap: 12px; flex-wrap: wrap;">
+            <button class="btn" onclick="document.getElementById('fileInput1').click()">📁 导入 HEX 1</button>
+            <input type="file" id="fileInput1" accept=".hex,.txt,.bin" onchange="handleFileSelect(event, 1)">
+            
+            <button class="btn" onclick="document.getElementById('fileInput2').click()" style="background-color: #409eff; border-color: #409eff; color: white;">📁 导入 HEX 2</button>
+            <input type="file" id="fileInput2" accept=".hex,.txt,.bin" onchange="handleFileSelect(event, 2)">
+            
+            <button class="btn btn-outline" onclick="document.getElementById('mapInput').click()">➕ 导入 .map (可选)</button>
+            <input type="file" id="mapInput" accept=".map,.txt" onchange="handleMapFileSelect(event)">
+            
+            <button class="btn btn-outline" id="exportBtn" style="display:none;" onclick="exportBin()">📦 导出 BIN</button>
+            <button class="btn btn-danger" onclick="resetApp()">🗑️ 清空重置</button>
+            <div style="flex-grow: 1;"></div>
+            
+            <div class="radio-group" id="dataModeToggle" style="display:none;">
+                <input type="radio" id="modeHex" name="dmode" value="hex" checked onchange="toggleDataMode('hex')">
+                <label for="modeHex">Hex</label>
+                <input type="radio" id="modeAscii" name="dmode" value="ascii" onchange="toggleDataMode('ascii')">
+                <label for="modeAscii">ASCII</label>
+            </div>
+
+        </div>
+    </div>
+
+    <div id="dropZone" class="drop-zone">
+        <div class="drop-icon">📄</div>
+        <div style="font-size: 16px;">将 HEX 文件拖入此处，或点击上方按钮导入</div>
+    </div>
+
+    <div class="container" id="resultsContainer" style="display: none;">
+        
+        <div class="tabs">
+            <div class="tab active" onclick="switchTab('overview')" id="tabBtnOverview">📊 分析概览</div>
+            <div class="tab" onclick="switchTab('details')" id="tabBtnDetails">🔍 数据明细</div>
+            <div style="flex-grow: 1;"></div>
+            <div id="detailsSearchBox" style="display: none; align-items: center; gap: 10px;">
+                <input type="text" id="addressSearch" class="search-box" style="width: 200px; padding: 4px 8px; font-size: 13px;" placeholder="输入 Hex 地址查找 (如 08000000)" onkeydown="if(event.key === 'Enter') searchAddress()">
+                <button class="btn" style="padding: 4px 10px; font-size: 13px;" onclick="searchAddress()">搜索</button>
+            </div>
+        </div>
+
+        <div id="tabOverview" class="tab-content active">
+            <div class="summary-panel">
+                <div class="stat-box" id="statusBox">
+                    <div class="stat-label">文件状态与校验和</div>
+                    <div class="stat-value" id="resStatus">-</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">基地址 (Base Address)</div>
+                    <div class="stat-value" id="resBaseAddr">-</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">结束地址 (End Address)</div>
+                    <div class="stat-value" id="resEndAddr">-</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">入口地址 / PC (Type 05/03)</div>
+                    <div class="stat-value" id="resEntryPoint">-</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">总数据量</div>
+                    <div class="stat-value" id="resTotalSize">-</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">总记录数</div>
+                    <div class="stat-value" id="resTotalRecords">-</div>
+                </div>
+            </div>
+
+            <div class="vector-table" id="vectorTableContainer" style="display: none;">
+                <div class="vector-header" onclick="toggleVectorTable()">
+                    <span>⚡ 中断向量表解析 (ARM Cortex-M 推测)</span>
+                    <span id="vectorChevron">▼</span>
+                </div>
+                <div class="vector-content" id="vectorContent"></div>
+            </div>
+
+            <div class="memory-map-container" id="memoryMapContainer" style="display: none;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                    <div class="memory-map-title" style="margin-bottom: 0;">内存空间热力图 (Memory Map)</div>
+                    <select id="mcuSelect" class="search-box" style="width: 200px; padding: 4px 8px; font-size: 13px;" onchange="buildMemoryMap()">
+                    </select>
+                </div>
+                
+                <div id="flashWarning" style="display: none; color: var(--error-color); font-size: 13px; font-weight: bold; margin-bottom: 8px; animation: flashWarningAnim 1s infinite alternate;">
+                    ⚠️ 警告：当前固件大小或地址已超出目标芯片 Flash 物理边界！
+                </div>
+                
+                <div id="flashStatus" style="font-size: 13px; color: var(--text-color); margin-bottom: 5px; font-family: 'Consolas', monospace;">
+                    Flash状态：-
+                </div>
+
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span id="mapStartAddr" style="font-size: 12px; color: var(--mark-color); font-family: 'Consolas', monospace; white-space: nowrap;">0x00000000</span>
+                    <div class="memory-map-bar" id="memoryMapBar" style="flex-grow: 1;"></div>
+                    <span id="mapEndAddr" style="font-size: 12px; color: var(--mark-color); font-family: 'Consolas', monospace; white-space: nowrap;">0xFFFFFFFF</span>
+                </div>
+            </div>
+
+            <div class="memory-map-container" id="ramMapContainer" style="display: none; margin-top: 0;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                    <div class="memory-map-title" style="margin-bottom: 0;">RAM 空间分布 (基于 MAP 文件)</div>
+                </div>
+                
+                <div id="ramWarning" style="display: none; color: var(--error-color); font-size: 13px; font-weight: bold; margin-bottom: 8px; animation: flashWarningAnim 0.5s infinite alternate;">
+                    🚨 严重错误：内存分配已溢出目标芯片 RAM 物理边界！
+                </div>
+                <div id="mapMismatchWarning" style="display: none; color: #e6a23c; font-size: 13px; font-weight: bold; margin-bottom: 8px;">
+                    ⚠️ 提示：加载的 HEX 文件与 MAP 文件总数据量偏差过大，可能不是同一次编译。
+                </div>
+                
+                <div id="ramStatus" style="font-size: 13px; color: var(--text-color); margin-bottom: 5px; font-family: 'Consolas', monospace;">
+                    RAM状态：-
+                </div>
+
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span id="ramStartAddr" style="font-size: 12px; color: var(--mark-color); font-family: 'Consolas', monospace; white-space: nowrap;">0x20000000</span>
+                    <div class="memory-map-bar" id="ramMapBar" style="flex-grow: 1;"></div>
+                    <span id="ramEndAddr" style="font-size: 12px; color: var(--mark-color); font-family: 'Consolas', monospace; white-space: nowrap;">0x20000000</span>
+                </div>
+                
+                <div style="display:flex; gap:15px; margin-top: 10px; font-size:12px; font-family:'Consolas', monospace; justify-content: center;">
+                    <div style="display:flex; align-items:center; gap:5px;"><div style="width:12px; height:12px; background:#409eff; border-radius:2px;"></div>RW Data</div>
+                    <div style="display:flex; align-items:center; gap:5px;"><div style="width:12px; height:12px; background:#e6a23c; border-radius:2px;"></div>ZI Data</div>
+                    <div style="display:flex; align-items:center; gap:5px;"><div style="width:12px; height:12px; background:#8e44ad; border-radius:2px;"></div>Heap</div>
+                    <div style="display:flex; align-items:center; gap:5px;"><div style="width:12px; height:12px; background:#f56c6c; border-radius:2px;"></div>Stack</div>
+                </div>
+            </div>
+
+            <div class="memory-map-container" id="leaderboardContainer" style="display: none; margin-top: 15px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                    <div class="memory-map-title" style="margin-bottom: 0;">🏆 固件内存消耗 Top 10 排行榜 (基于 MAP)</div>
+                </div>
+                <div class="tabs" style="margin-bottom: 10px; border-bottom: none;">
+                    <div class="tab active" style="padding: 5px 15px; font-size: 13px;" onclick="switchLeaderboardTab('rom')" id="lbTabRom">Flash (ROM) 占用</div>
+                    <div class="tab" style="padding: 5px 15px; font-size: 13px;" onclick="switchLeaderboardTab('ram')" id="lbTabRam">RAM 占用</div>
+                </div>
+                <div id="lbContentRom" style="display: block;"></div>
+                <div id="lbContentRam" style="display: none;"></div>
+            </div>
+        </div>
+
+        <div id="tabDetails" class="tab-content" style="overflow: hidden;">
+            <div class="table-container" id="tableContainer">
+                <table id="detailsTable">
+                    <thead>
+                        <tr>
+                            <th width="60">行号</th>
+                            <th>HEX 源指令分段</th>
+                            <th width="160">记录类型</th>
+                            <th width="120">物理地址</th>
+                            <th width="120">校验</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody"></tbody>
+                </table>
+            </div>
+
+            <div class="pagination" id="paginationCtrl">
+                <div id="pageInfo">第 1 页 / 共 1 页 (每页 200 条)</div>
+                <div class="page-controls">
+                    <button class="page-btn" id="btnPrev" onclick="changePage(-1)">上一页</button>
+                    <input type="number" id="pageJump" style="width: 50px; text-align: center; border: 1px solid var(--border-color); border-radius: 4px; background: var(--panel-bg); color: var(--text-color);" value="1" min="1" onkeydown="if(event.key==='Enter') jumpPage()">
+                    <button class="page-btn" onclick="jumpPage()">跳转</button>
+                    <button class="page-btn" id="btnNext" onclick="changePage(1)">下一页</button>
+                </div>
+            </div>
+        </div>
+                    </script>
+                </section>
+                
+                <section class="tool-view" id="ocpView" hidden style="height: 100%; padding: 0; overflow-y: auto; background: #eef2f5;">
+                    <style>
+                        #ocpView {
+                          --ink: #15202b; --muted: #667585; --line: #cbd5df; --paper: #ffffff;
+                          --blue: #0b6ea8; --blue-dark: #07547f; --green: #19724a; --amber: #9a5b00; --red: #af3028;
+                          color: var(--ink); font-family: "Microsoft YaHei", "Noto Sans SC", Arial, sans-serif; line-height: 1.45;
+                        }
+                        #ocpView * { box-sizing: border-box; }
+                        #ocpView main { width: min(1040px, calc(100% - 32px)); margin: 36px auto; }
+                        #ocpView header { display: flex; align-items: end; justify-content: space-between; gap: 20px; margin-bottom: 18px; }
+                        #ocpView h1 { margin: 0; font-size: 25px; font-weight: 700; letter-spacing: 0; text-align: left; }
+                        #ocpView .subtitle { margin: 5px 0 0; color: var(--muted); font-size: 14px; }
+                        #ocpView .badge { flex: none; border: 1px solid #83b8d5; border-radius: 4px; padding: 4px 8px; color: var(--blue-dark); background: #e7f4fb; font-size: 12px; font-weight: 700; }
+                        #ocpView .tool { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, 0.8fr); border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: var(--paper); }
+                        #ocpView .parameters, #ocpView .result { padding: 24px; }
+                        #ocpView .parameters { border-right: 1px solid var(--line); }
+                        #ocpView .result { background: #f9fbfc; }
+                        #ocpView h2 { margin: 0 0 18px; font-size: 17px; letter-spacing: 0; }
+                        #ocpView .field-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+                        #ocpView label { display: block; color: #344454; font-size: 13px; font-weight: 700; }
+                        #ocpView .input-wrap { position: relative; margin-top: 6px; }
+                        #ocpView input { width: 100%; height: 38px; border: 1px solid #aebdca; border-radius: 4px; padding: 0 46px 0 10px; color: var(--ink); background: #fff; font: inherit; font-size: 14px; outline: none; }
+                        #ocpView input:focus { border-color: var(--blue); box-shadow: 0 0 0 2px rgba(11, 110, 168, 0.16); }
+                        #ocpView .unit { position: absolute; right: 10px; top: 9px; color: var(--muted); font-size: 12px; pointer-events: none; }
+                        #ocpView .wide { grid-column: 1 / -1; }
+                        #ocpView details { margin-top: 22px; border-top: 1px solid #d9e1e7; padding-top: 14px; }
+                        #ocpView summary { color: #344454; cursor: pointer; font-size: 13px; font-weight: 700; }
+                        #ocpView .advanced { margin-top: 14px; }
+                        #ocpView .actions { display: flex; gap: 10px; margin-top: 24px; }
+                        #ocpView button { height: 38px; border: 1px solid var(--blue); border-radius: 4px; padding: 0 16px; cursor: pointer; background: var(--blue); color: #fff; font: inherit; font-size: 14px; font-weight: 700; }
+                        #ocpView button:hover { background: var(--blue-dark); }
+                        #ocpView button.secondary { border-color: #aebdca; background: #fff; color: #344454; }
+                        #ocpView button.secondary:hover { background: #f0f4f7; }
+                        #ocpView .state { display: inline-flex; align-items: center; min-height: 25px; border-radius: 4px; padding: 3px 7px; background: #e5f4ec; color: var(--green); font-size: 12px; font-weight: 700; }
+                        #ocpView .state.warn { background: #fff1d9; color: var(--amber); }
+                        #ocpView .state.error { background: #fbe8e7; color: var(--red); }
+                        #ocpView .time { margin: 12px 0 4px; font-variant-numeric: tabular-nums; font-size: 36px; font-weight: 700; letter-spacing: 0; line-height: 1.1; }
+                        #ocpView .time.no-trip { font-size: 24px; color: var(--amber); }
+                        #ocpView .detail-list { margin: 24px 0 0; border-top: 1px solid #d9e1e7; }
+                        #ocpView .detail-row { display: flex; justify-content: space-between; gap: 18px; min-height: 39px; align-items: center; border-bottom: 1px solid #d9e1e7; font-size: 13px; }
+                        #ocpView .detail-row span { color: var(--muted); }
+                        #ocpView .detail-row strong { font-variant-numeric: tabular-nums; text-align: right; }
+                        #ocpView .formula { margin-top: 22px; padding-top: 14px; border-top: 1px solid #d9e1e7; color: var(--muted); font-size: 12px; font-family: Consolas, monospace; line-height: 1.65; overflow-wrap: anywhere; }
+                        #ocpView .error-message { min-height: 18px; margin-top: 12px; color: var(--red); font-size: 13px; }
+                        @media (max-width: 740px) {
+                          #ocpView main { width: min(100% - 24px, 1040px); margin: 20px auto; }
+                          #ocpView header { align-items: flex-start; flex-direction: column; gap: 10px; }
+                          #ocpView .tool { grid-template-columns: 1fr; }
+                          #ocpView .parameters { border-right: 0; border-bottom: 1px solid var(--line); }
+                          #ocpView .parameters, #ocpView .result { padding: 18px; }
+                        }
+                        @media (max-width: 460px) {
+                          #ocpView .field-grid { grid-template-columns: 1fr; }
+                          #ocpView .wide { grid-column: auto; }
+                          #ocpView .time { font-size: 30px; }
+                        }
+                    </style>
+                    <main>
+                      <header>
+                        <div>
+                          <h1>I2t 过流保护时间计算</h1>
+                          <p class="subtitle">按固件整数积热与散热规则逐周期仿真</p>
+                        </div>
+                        <div class="badge">通道无关</div>
+                      </header>
+                  
+                      <section class="tool" aria-label="过流保护时间计算器">
+                        <div class="parameters">
+                          <h2>保护参数</h2>
+                          <div class="field-grid">
+                            <label>当前电流倍率<span class="input-wrap"><input id="currentMultiple" type="number" min="0" step="0.001" value="1.500"><span class="unit">I/In</span></span></label>
+                            <label>起始保护点<span class="input-wrap"><input id="startMultiple" type="number" min="0" step="0.001" value="1.100"><span class="unit">I/In</span></span></label>
+                            <label>总热量门限<span class="input-wrap"><input id="heatLimit" type="number" min="1" step="1000" value="38000000"><span class="unit">E</span></span></label>
+                            <label>当前累计热量<span class="input-wrap"><input id="initialHeat" type="number" min="0" step="1000" value="0"><span class="unit">E</span></span></label>
+                            <label class="wide">最大仿真时长<span class="input-wrap"><input id="maxSeconds" type="number" min="0.003" step="1" value="600"><span class="unit">s</span></span></label>
+                          </div>
+                  
+                          <details>
+                            <summary>算法参数</summary>
+                            <div class="field-grid advanced">
+                              <label>周期<span class="input-wrap"><input id="periodMs" type="number" min="0.001" step="0.001" value="3"><span class="unit">ms</span></span></label>
+                              <label>归一化基准<span class="input-wrap"><input id="normalizationBase" type="number" min="1" step="1" value="500"><span class="unit">N/In</span></span></label>
+                              <label>积热系数<span class="input-wrap"><input id="heatGain" type="number" min="0" step="1" value="15"><span class="unit">/1024</span></span></label>
+                              <label>热散失移位<span class="input-wrap"><input id="coolShift" type="number" min="1" max="30" step="1" value="15"><span class="unit">bit</span></span></label>
+                            </div>
+                          </details>
+                  
+                          <div class="actions">
+                            <button id="calculate" type="button">计算</button>
+                            <button id="reset" class="secondary" type="button">恢复默认</button>
+                          </div>
+                          <div id="errorMessage" class="error-message" role="alert"></div>
+                        </div>
+                  
+                        <div class="result" aria-live="polite">
+                          <h2>计算结果</h2>
+                          <div id="status" class="state">已触发</div>
+                          <div id="time" class="time">35.697 s</div>
+                          <div id="timeText" class="subtitle">35.697 s</div>
+                  
+                          <div class="detail-list">
+                            <div class="detail-row"><span>归一化电流点 N</span><strong id="normalizedCurrent">750</strong></div>
+                            <div class="detail-row"><span>归一化起始点 N0</span><strong id="normalizedStart">550</strong></div>
+                            <div class="detail-row"><span>每周期积热量</span><strong id="stepEnergy">3,808 E</strong></div>
+                            <div class="detail-row"><span>触发周期数</span><strong id="cycles">11,899</strong></div>
+                            <div class="detail-row"><span>触发时总热量</span><strong id="triggerHeat">38,001,524 E</strong></div>
+                          </div>
+                  
+                          <div class="formula">
+                            N = floor((I / In) * 基准)<br>
+                            I &gt; I0: E = E - floor(E / 2^散热移位) + floor((N^2 - N0^2) * 积热系数 / 1024)<br>
+                            I &lt;= I0: E = max(0, E - floor((N0^2 - N^2) * 积热系数 / 1024))
+                          </div>
+                        </div>
+                      </section>
+                    </main>
+                    <script>
+                      (function() {
+                        const defaults = { currentMultiple: 1.500, startMultiple: 1.100, heatLimit: 38000000, initialHeat: 0, maxSeconds: 600, periodMs: 3, normalizationBase: 500, heatGain: 15, coolShift: 15 };
+                        const inputIds = Object.keys(defaults);
+                        const numberFormat = new Intl.NumberFormat("zh-CN", { maximumFractionDigits: 3 });
+                        const integerFormat = new Intl.NumberFormat("zh-CN", { maximumFractionDigits: 0 });
+                  
+                        const getValue = (id) => Number(document.getElementById(id).value);
+                        const setText = (id, text) => { document.getElementById(id).textContent = text; };
+                  
+                        function readParameters() {
+                          const values = {};
+                          for (const id of inputIds) {
+                            values[id] = getValue(id);
+                            if (!Number.isFinite(values[id])) throw new Error("请输入有效的数值。");
+                          }
+                          if (values.currentMultiple < 0 || values.startMultiple < 0 || values.initialHeat < 0) throw new Error("电流倍率、起始保护点和当前累计热量不能小于 0。");
+                          if (values.heatLimit <= 0 || values.periodMs <= 0 || values.normalizationBase <= 0 || values.maxSeconds <= 0) throw new Error("门限、周期、归一化基准和最大仿真时长必须大于 0。");
+                          if (values.heatGain < 0 || !Number.isInteger(values.coolShift) || values.coolShift < 1 || values.coolShift > 30) throw new Error("积热系数不能小于 0，热散失移位必须为 1 到 30 的整数。");
+                          return values;
+                        }
+                  
+                        function formatDuration(milliseconds) {
+                          const seconds = milliseconds / 1000;
+                          if (seconds < 60) return `${numberFormat.format(seconds)} s`;
+                          const minutes = Math.floor(seconds / 60);
+                          const remainingSeconds = seconds - minutes * 60;
+                          return `${minutes} 分 ${numberFormat.format(remainingSeconds)} 秒`;
+                        }
+                  
+                        function updateResult(result) {
+                          const status = document.getElementById("status");
+                          const time = document.getElementById("time");
+                          const timeText = document.getElementById("timeText");
+                  
+                          setText("normalizedCurrent", integerFormat.format(result.current));
+                          setText("normalizedStart", integerFormat.format(result.start));
+                          setText("stepEnergy", `${integerFormat.format(result.stepEnergy)} E`);
+                          setText("cycles", integerFormat.format(result.cycles));
+                          setText("triggerHeat", `${integerFormat.format(result.energy)} E`);
+                  
+                          if (result.triggered) {
+                            status.className = "state"; status.textContent = "已触发";
+                            time.className = "time"; time.textContent = `${numberFormat.format(result.durationMs / 1000)} s`;
+                            timeText.textContent = formatDuration(result.durationMs);
+                            return;
+                          }
+                  
+                          status.className = result.current <= result.start ? "state warn" : "state error";
+                          status.textContent = result.current <= result.start ? "不会积热触发" : "最大仿真时长内未触发";
+                          time.className = "time no-trip"; time.textContent = "未触发"; timeText.textContent = result.reason;
+                        }
+                  
+                        function simulate(values) {
+                          const current = Math.floor(values.currentMultiple * values.normalizationBase);
+                          const start = Math.floor(values.startMultiple * values.normalizationBase);
+                          const maxCycles = Math.floor(values.maxSeconds * 1000 / values.periodMs);
+                          let energy = Math.floor(values.initialHeat);
+                          let cycles = 0; let stepEnergy = 0;
+                  
+                          if (energy >= values.heatLimit) return { triggered: true, current, start, stepEnergy: 0, cycles: 0, energy, durationMs: 0 };
+                  
+                          if (current > start) stepEnergy = Math.floor(((current * current - start * start) * values.heatGain) / 1024);
+                          else {
+                            stepEnergy = Math.floor(((start * start - current * current) * values.heatGain) / 1024);
+                            return { triggered: false, current, start, stepEnergy, cycles: 0, energy, reason: "当前电流不高于起始保护点，累计热量只会散失。" };
+                          }
+                  
+                          for (cycles = 1; cycles <= maxCycles; cycles += 1) {
+                            const previousEnergy = energy;
+                            energy -= Math.floor(energy / (2 ** values.coolShift));
+                            energy += stepEnergy;
+                  
+                            if (energy >= values.heatLimit) return { triggered: true, current, start, stepEnergy, cycles, energy, durationMs: cycles * values.periodMs };
+                            if (energy <= previousEnergy) return { triggered: false, current, start, stepEnergy, cycles, energy, reason: "积热已达到稳态，无法超过当前总热量门限。" };
+                          }
+                          return { triggered: false, current, start, stepEnergy, cycles: maxCycles, energy, reason: `在 ${numberFormat.format(values.maxSeconds)} s 仿真窗口内未达到门限。` };
+                        }
+                  
+                        function calculate() {
+                          const errorMessage = document.getElementById("errorMessage");
+                          try {
+                            const result = simulate(readParameters());
+                            updateResult(result);
+                            errorMessage.textContent = "";
+                          } catch (error) { errorMessage.textContent = error.message; }
+                        }
+                  
+                        document.getElementById("calculate").addEventListener("click", calculate);
+                        document.getElementById("reset").addEventListener("click", () => {
+                          for (const [id, value] of Object.entries(defaults)) document.getElementById(id).value = value;
+                          calculate();
+                        });
+                        inputIds.forEach((id) => document.getElementById(id).addEventListener("keydown", (event) => {
+                          if (event.key === "Enter") calculate();
+                        }));
+                  
+                        calculate();
+                      })();
+                    </script>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <div id="customTooltip"></div>
+
+    <script>
+        const appState = {
+            records: [],
+            dataBlocks: [], // merged memory blocks
+            filesInfo: {
+                1: { minAddr: 0xFFFFFFFF, maxAddr: 0, maxEndAddr: 0, totalBytes: 0, validRecords: 0, startLinearAddr: null, checksumErrorCount: 0, loaded: false, eof: false },
+                2: { minAddr: 0xFFFFFFFF, maxAddr: 0, maxEndAddr: 0, totalBytes: 0, validRecords: 0, startLinearAddr: null, checksumErrorCount: 0, loaded: false, eof: false }
+            },
+            hexTotalBytes: 0,
+            mapData: null,
+            mapSymbols: [],
+            displayMode: 'hex',
+            currentPage: 1,
+            pageSize: 200,
+            totalPages: 1,
+            theme: 'light'
+        };
+
+        const RECORD_TYPES = {
+            '00': 'Data (数据)',
+            '01': 'EOF (文件结束)',
+            '02': 'Ext Seg Addr (段地址)',
+            '03': 'Start Seg Addr',
+            '04': 'Ext Lin Addr (高位地址)',
+            '05': 'Start Lin Addr (PC)'
+        };
+
+        const chipPresets = {
+            "CUSTOM": { name: "自定义范围 (自动适配)", start: null, end: null, size: null, ramStart: null, ramSize: null },
+            "STM32F103C8": { name: "STM32F103C8 (64KB Flash / 20KB RAM)", start: 0x08000000, size: 64 * 1024, ramStart: 0x20000000, ramSize: 20 * 1024 },
+            "STM32F103CB": { name: "STM32F103CB (128KB Flash / 20KB RAM)", start: 0x08000000, size: 128 * 1024, ramStart: 0x20000000, ramSize: 20 * 1024 },
+            "STM32F103RC": { name: "STM32F103RC (256KB Flash / 48KB RAM)", start: 0x08000000, size: 256 * 1024, ramStart: 0x20000000, ramSize: 48 * 1024 },
+            "STM32F103RE": { name: "STM32F103RE/ZE (512KB Flash / 64KB RAM)", start: 0x08000000, size: 512 * 1024, ramStart: 0x20000000, ramSize: 64 * 1024 },
+            "STM32F401CC": { name: "STM32F401CC (256KB Flash / 64KB RAM)", start: 0x08000000, size: 256 * 1024, ramStart: 0x20000000, ramSize: 64 * 1024 },
+            "STM32F411CE": { name: "STM32F411CE (512KB Flash / 128KB RAM)", start: 0x08000000, size: 512 * 1024, ramStart: 0x20000000, ramSize: 128 * 1024 },
+            "STM32F407ZG": { name: "STM32F407ZG/IG (1MB Flash / 192KB RAM)", start: 0x08000000, size: 1024 * 1024, ramStart: 0x20000000, ramSize: 192 * 1024 },
+            "CS32F405_1M": { name: "CS32F405 (1MB Flash / 192KB RAM)", start: 0x08000000, size: 1024 * 1024, ramStart: 0x20000000, ramSize: 192 * 1024 },
+            "GD32F103CB": { name: "GD32F103CB (128KB Flash / 32KB RAM)", start: 0x08000000, size: 128 * 1024, ramStart: 0x20000000, ramSize: 32 * 1024 }
+        };
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const select = document.getElementById('mcuSelect');
+            if (select) {
+                for (const key in chipPresets) {
+                    const opt = document.createElement('option');
+                    opt.value = key;
+                    opt.textContent = chipPresets[key].name;
+                    select.appendChild(opt);
+                }
+            }
+        });
+
+        const VECTOR_NAMES = [
+            "Initial SP", "Reset_Handler", "NMI_Handler", "HardFault_Handler", 
+            "MemManage_Handler", "BusFault_Handler", "UsageFault_Handler", 
+            "Reserved", "Reserved", "Reserved", "Reserved", 
+            "SVCall_Handler", "DebugMonitor", "Reserved", "PendSV_Handler", "SysTick_Handler"
+        ];
+
+        // Dropzone Logic
+        const dropZone = document.getElementById('dropZone');
+        dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('dragover'); });
+        dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault(); dropZone.classList.remove('dragover');
+            if (e.dataTransfer.files.length) processFile(e.dataTransfer.files[0]);
+        });
+
+        function handleFileSelect(event, fileId) {
+            if (event.target.files.length) processFile(event.target.files[0], fileId);
+        }
+
+        function processFile(file, fileId) {
+            const reader = new FileReader();
+            reader.onload = e => analyzeHex(e.target.result, fileId);
+            reader.readAsText(file);
+        }
+
+        function resetApp() {
+            document.getElementById('fileInput1').value = '';
+            document.getElementById('fileInput2').value = '';
+            document.getElementById('mapInput').value = '';
+            document.getElementById('addressSearch').value = '';
+            document.getElementById('addressSearch').classList.remove('error');
+            document.getElementById('resultsContainer').style.display = 'none';
+            document.getElementById('dropZone').style.display = 'flex';
+            document.getElementById('exportBtn').style.display = 'none';
+            document.getElementById('dataModeToggle').style.display = 'none';
+            appState.records = [];
+            appState.dataBlocks = [];
+            appState.mapData = null;
+            appState.mapSymbols = [];
+            appState.hexTotalBytes = 0;
+            appState.filesInfo[1] = { minAddr: 0xFFFFFFFF, maxAddr: 0, maxEndAddr: 0, totalBytes: 0, validRecords: 0, startLinearAddr: null, checksumErrorCount: 0, loaded: false, eof: false };
+            appState.filesInfo[2] = { minAddr: 0xFFFFFFFF, maxAddr: 0, maxEndAddr: 0, totalBytes: 0, validRecords: 0, startLinearAddr: null, checksumErrorCount: 0, loaded: false, eof: false };
+        }
+
+        function showToast(message, type = 'info') {
+            let container = document.querySelector('.toast-container');
+            if (!container) {
+                container = document.createElement('div');
+                container.className = 'toast-container';
+                document.body.appendChild(container);
+            }
+            const toast = document.createElement('div');
+            let icon = type === 'success' ? '✅' : type === 'error' ? '❌' : type === 'warning' ? '⚠️' : 'ℹ️';
+            toast.className = 'toast-message';
+            toast.style.borderLeft = `4px solid var(--${type}-color, var(--primary-color))`;
+            toast.innerHTML = `<span>${icon}</span> <span>${message}</span>`;
+            container.appendChild(toast);
+            toast.offsetHeight; // reflow
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        function updateSummaryUI() {
+            const f1 = appState.filesInfo[1];
+            const f2 = appState.filesInfo[2];
+            const hasData1 = f1.loaded && f1.minAddr !== 0xFFFFFFFF;
+            const hasData2 = f2.loaded && f2.minAddr !== 0xFFFFFFFF;
+            
+            let totalErrs = f1.checksumErrorCount + f2.checksumErrorCount;
+            let statusHtml = '';
+            
+            if (f1.loaded) {
+                statusHtml += `<div style="margin-bottom:2px">HEX 1: ${f1.checksumErrorCount===0 ? '✅ 完美' : '❌ '+f1.checksumErrorCount+' 错误'} ${f1.eof?'[含EOF]':''}</div>`;
+            }
+            if (f2.loaded) {
+                statusHtml += `<div>HEX 2: ${f2.checksumErrorCount===0 ? '✅ 完美' : '❌ '+f2.checksumErrorCount+' 错误'} ${f2.eof?'[含EOF]':''}</div>`;
+            }
+            
+            const statusBox = document.getElementById('statusBox');
+            document.getElementById('resStatus').innerHTML = `<span class="${totalErrs === 0 ? 'valid' : 'invalid'}">${statusHtml}</span>`;
+            statusBox.className = 'stat-box ' + (totalErrs === 0 ? 'status-perfect' : 'status-error');
+
+            appState.hexTotalBytes = f1.totalBytes + f2.totalBytes;
+
+            let minStr = [], maxStr = [], epStr = [];
+            if (hasData1) { minStr.push("F1: 0x"+f1.minAddr.toString(16).toUpperCase().padStart(8,'0')); maxStr.push("F1: 0x"+f1.maxEndAddr.toString(16).toUpperCase().padStart(8,'0')); }
+            if (hasData2) { minStr.push("F2: 0x"+f2.minAddr.toString(16).toUpperCase().padStart(8,'0')); maxStr.push("F2: 0x"+f2.maxEndAddr.toString(16).toUpperCase().padStart(8,'0')); }
+            if (f1.loaded && f1.startLinearAddr !== null) epStr.push("F1: 0x"+f1.startLinearAddr.toString(16).toUpperCase().padStart(8,'0'));
+            if (f2.loaded && f2.startLinearAddr !== null) epStr.push("F2: 0x"+f2.startLinearAddr.toString(16).toUpperCase().padStart(8,'0'));
+
+            document.getElementById('resBaseAddr').innerHTML = minStr.join('<br>') || "-";
+            document.getElementById('resEndAddr').innerHTML = maxStr.join('<br>') || "-";
+            document.getElementById('resEntryPoint').innerHTML = epStr.join('<br>') || "-";
+            document.getElementById('resTotalSize').textContent = (f1.totalBytes + f2.totalBytes).toLocaleString() + " Bytes";
+            document.getElementById('resTotalRecords').textContent = (f1.validRecords + f2.validRecords).toLocaleString();
+        }
+
+        function analyzeHex(text, fileId = 1) {
+            const lines = text.split(/\r?\n/).map(l => l.trim()).filter(l => l.length > 0);
+            if (!lines.length) { showToast("文件为空或格式错误", "error"); return; }
+
+            appState.records = appState.records.filter(r => r.fileId !== fileId);
+
+            document.getElementById('dropZone').style.display = 'none';
+            document.getElementById('resultsContainer').style.display = 'flex';
+            document.getElementById('exportBtn').style.display = 'inline-block';
+            document.getElementById('dataModeToggle').style.display = 'inline-flex';
+
+            let extLinear = 0, extSegment = 0;
+            let fileInfo = { minAddr: 0xFFFFFFFF, maxAddr: 0, maxEndAddr: 0, totalBytes: 0, validRecords: 0, startLinearAddr: null, checksumErrorCount: 0, loaded: true, eof: false };
+
+            const baseBytesBuffer = new Uint8Array(64); 
+            let baseBytesFilled = 0;
+            let fileRecords = [];
+
+            lines.forEach((line, index) => {
+                const record = { index: index + 1, raw: line, valid: false, err: '', absoluteAddr: null, fileId: fileId };
+                
+                if (!line.startsWith(':')) { record.err = '缺少起始符 ":"'; fileRecords.push(record); return; }
+                
+                const mark = ':', lenHex = line.slice(1, 3), addrHex = line.slice(3, 7), typeHex = line.slice(7, 9);
+                const len = parseInt(lenHex, 16);
+                if (line.length !== 11 + len * 2) { record.err = `长度不匹配`; fileRecords.push(record); return; }
+
+                const dataHex = line.slice(9, 9 + len * 2);
+                const csumHex = line.slice(9 + len * 2, 11 + len * 2);
+
+                let sum = len + parseInt(addrHex.slice(0,2),16) + parseInt(addrHex.slice(2,4),16) + parseInt(typeHex,16);
+                for (let j = 0; j < dataHex.length; j += 2) sum += parseInt(dataHex.slice(j, j+2), 16);
+                const calcCsum = (0x100 - (sum & 0xFF)) & 0xFF;
+                const isCsumValid = calcCsum === parseInt(csumHex, 16);
+                if (!isCsumValid) fileInfo.checksumErrorCount++;
+
+                record.valid = true;
+                record.mark = mark; record.lenHex = lenHex; record.addrHex = addrHex;
+                record.typeHex = typeHex; record.dataHex = dataHex; record.csumHex = csumHex;
+                record.isCsumValid = isCsumValid; record.calcCsum = calcCsum;
+                record.len = len;
+
+                let offset = parseInt(addrHex, 16);
+                if (typeHex === '02') extSegment = parseInt(dataHex, 16);
+                else if (typeHex === '04') extLinear = parseInt(dataHex, 16);
+                else if (typeHex === '05') fileInfo.startLinearAddr = parseInt(dataHex, 16);
+                else if (typeHex === '01') fileInfo.eof = true;
+                else if (typeHex === '00') {
+                    fileInfo.totalBytes += len;
+                    const absoluteAddr = (extLinear * 65536) + (extSegment * 16) + offset;
+                    record.absoluteAddr = absoluteAddr;
+
+                    if (absoluteAddr < fileInfo.minAddr) fileInfo.minAddr = absoluteAddr;
+                    if (absoluteAddr > fileInfo.maxAddr) fileInfo.maxAddr = absoluteAddr;
+                    if (absoluteAddr + len - 1 > fileInfo.maxEndAddr) fileInfo.maxEndAddr = absoluteAddr + len - 1;
+                }
+                
+                fileInfo.validRecords++;
+                fileRecords.push(record);
+            });
+            
+            appState.filesInfo[fileId] = fileInfo;
+            appState.records = appState.records.concat(fileRecords);
+            
+            let globalMinAddr = Math.min(appState.filesInfo[1].minAddr, appState.filesInfo[2].minAddr);
+            
+            baseBytesBuffer.fill(0);
+            if (globalMinAddr !== 0xFFFFFFFF) {
+                appState.records.forEach(r => {
+                    if (r.typeHex === '00' && r.absoluteAddr !== null) {
+                        for(let j=0; j<r.len; j++) {
+                            const offsetFromBase = (r.absoluteAddr + j) - globalMinAddr;
+                            if (offsetFromBase >= 0 && offsetFromBase < 64) {
+                                baseBytesBuffer[offsetFromBase] = parseInt(r.dataHex.slice(j*2, j*2+2), 16);
+                                baseBytesFilled = Math.max(baseBytesFilled, offsetFromBase + 1);
+                            }
+                        }
+                    }
+                });
+            }
+
+            updateSummaryUI();
+
+            buildMemoryMap();
+            buildVectorTable(baseBytesBuffer, baseBytesFilled);
+            
+            appState.currentPage = 1;
+            appState.totalPages = Math.ceil(appState.records.length / appState.pageSize) || 1;
+            renderTable();
+        }
+
+        function formatDataString(hexStr) {
+            if (appState.displayMode === 'hex') {
+                return hexStr.match(/.{1,2}/g)?.join(' ') || hexStr;
+            } else {
+                let ascii = '';
+                for (let i = 0; i < hexStr.length; i += 2) {
+                    const code = parseInt(hexStr.slice(i, i+2), 16);
+                    ascii += (code >= 32 && code <= 126) ? String.fromCharCode(code) : '.';
+                }
+                return `<span style="color: var(--primary-color);">${ascii.replace(/&/g, '&amp;').replace(/</g, '&lt;')}</span>`;
+            }
+        }
+
+        function toggleDataMode(mode) {
+            appState.displayMode = mode;
+            renderTable();
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = '';
+            
+            const startIdx = (appState.currentPage - 1) * appState.pageSize;
+            const endIdx = Math.min(startIdx + appState.pageSize, appState.records.length);
+            
+            for (let i = startIdx; i < endIdx; i++) {
+                const rec = appState.records[i];
+                const tr = document.createElement('tr');
+                tr.id = `row-${i}`;
+                
+                if (!rec.valid) {
+                    tr.innerHTML = `<td>${rec.index}</td><td colspan="4" class="invalid">${rec.err} - ${rec.raw}</td>`;
+                } else {
+                    const addrStr = rec.absoluteAddr !== null ? "0x" + rec.absoluteAddr.toString(16).toUpperCase().padStart(8, '0') : "-";
+                    const dataDisplay = rec.typeHex === '00' ? formatDataString(rec.dataHex) : rec.dataHex;
+                    
+                    tr.innerHTML = `
+                        <td>${rec.index}</td>
+                        <td>
+                            <span class="c-mark">${rec.mark}</span><span class="c-len">${rec.lenHex}</span><span class="c-addr">${rec.addrHex}</span><span class="c-type">${rec.typeHex}</span><span class="c-data">${dataDisplay}</span><span class="c-csum">${rec.csumHex}</span>
+                        </td>
+                        <td>${RECORD_TYPES[rec.typeHex] || 'Unknown'}</td>
+                        <td class="c-addr">${addrStr}</td>
+                        <td>${rec.isCsumValid ? '<span class="valid">✅ OK</span>' : `<span class="invalid">❌ (${rec.calcCsum.toString(16).toUpperCase().padStart(2,'0')})</span>`}</td>
+                    `;
+                }
+                tbody.appendChild(tr);
+            }
+            
+            document.getElementById('pageInfo').textContent = `第 ${appState.currentPage} 页 / 共 ${appState.totalPages} 页`;
+            document.getElementById('pageJump').value = appState.currentPage;
+            document.getElementById('btnPrev').disabled = appState.currentPage === 1;
+            document.getElementById('btnNext').disabled = appState.currentPage === appState.totalPages;
+        }
+
+        function changePage(delta) {
+            let newPage = appState.currentPage + delta;
+            if (newPage >= 1 && newPage <= appState.totalPages) {
+                appState.currentPage = newPage;
+                renderTable();
+                document.getElementById('tableContainer').scrollTop = 0;
+            }
+        }
+
+        function jumpPage() {
+            let val = parseInt(document.getElementById('pageJump').value);
+            if (!isNaN(val) && val >= 1 && val <= appState.totalPages) {
+                appState.currentPage = val;
+                renderTable();
+                document.getElementById('tableContainer').scrollTop = 0;
+            } else {
+                showToast(`页码超出范围 (1 - ${appState.totalPages})`, "warning");
+            }
+        }
+
+        // Memory Map with Custom Tooltip
+        function buildMemoryMap() {
+            const container = document.getElementById('memoryMapContainer');
+            if (appState.minAddr === 0xFFFFFFFF) { container.style.display = 'none'; return; }
+            container.style.display = 'block';
+            
+            const selectedChipKey = document.getElementById('mcuSelect').value;
+            const chip = chipPresets[selectedChipKey];
+            
+            let mapStart, mapEnd, totalSize;
+            let blocks1 = appState.records.filter(r => r.fileId === 1 && r.absoluteAddr !== null).map(r => ({ start: r.absoluteAddr, len: r.len }));
+            let blocks2 = appState.records.filter(r => r.fileId === 2 && r.absoluteAddr !== null).map(r => ({ start: r.absoluteAddr, len: r.len }));
+
+            function mergeBlocks(blocks) {
+                blocks.sort((a, b) => a.start - b.start);
+                let merged = [];
+                if (blocks.length > 0) {
+                    let curr = { start: blocks[0].start, end: blocks[0].start + blocks[0].len - 1 };
+                    for (let i = 1; i < blocks.length; i++) {
+                        let b = blocks[i], bEnd = b.start + b.len - 1;
+                        if (b.start <= curr.end + 1) curr.end = Math.max(curr.end, bEnd);
+                        else { merged.push(curr); curr = { start: b.start, end: bEnd }; }
+                    }
+                    merged.push(curr);
+                }
+                return merged;
+            }
+
+            let m1 = mergeBlocks(blocks1);
+            let m2 = mergeBlocks(blocks2);
+            
+            let overlaps = [];
+            for (let b1 of m1) {
+                for (let b2 of m2) {
+                    let oStart = Math.max(b1.start, b2.start);
+                    let oEnd = Math.min(b1.end, b2.end);
+                    if (oStart <= oEnd) overlaps.push({ start: oStart, end: oEnd });
+                }
+            }
+
+            appState.dataBlocks = mergeBlocks([...m1, ...m2]);
+            let isCustom = selectedChipKey === 'CUSTOM';
+            if (isCustom) {
+                mapStart = Math.min(appState.filesInfo[1]?.minAddr || Infinity, appState.filesInfo[2]?.minAddr || Infinity);
+                mapEnd = Math.max(appState.filesInfo[1]?.maxEndAddr || 0, appState.filesInfo[2]?.maxEndAddr || 0);
+                totalSize = mapEnd - mapStart + 1;
+            } else {
+                mapStart = chip.start;
+                totalSize = chip.size;
+                mapEnd = mapStart + totalSize - 1;
+            }
+
+            document.getElementById('mapStartAddr').textContent = "0x" + mapStart.toString(16).toUpperCase().padStart(8, '0');
+            document.getElementById('mapEndAddr').textContent = "0x" + mapEnd.toString(16).toUpperCase().padStart(8, '0');
+
+            const mapBar = document.getElementById('memoryMapBar');
+            mapBar.innerHTML = '';
+            const tooltip = document.getElementById('customTooltip');
+            
+            let outOfBounds = false;
+            let totalUsed = 0;
+
+            let drawSegments = [
+                ...m1.map(b => ({...b, name: 'HEX 1', color: 'var(--success-color)', zIndex: 1})), 
+                ...m2.map(b => ({...b, name: 'HEX 2', color: '#409eff', zIndex: 2})), 
+                ...overlaps.map(b => ({...b, name: '🚨 冲突重叠区', color: 'var(--error-color)', zIndex: 3, isOverlap: true}))
+            ];
+
+            drawSegments.forEach(seg => {
+                if (seg.start < mapStart || seg.end > mapEnd) outOfBounds = true;
+                if (!seg.isOverlap) totalUsed += (seg.end - seg.start + 1);
+                
+                let renderStart = Math.max(seg.start, mapStart);
+                let renderEnd = Math.min(seg.end, mapEnd);
+                if (renderStart <= renderEnd) {
+                    let leftPercent = ((renderStart - mapStart) / totalSize) * 100;
+                    let widthPercent = ((renderEnd - renderStart + 1) / totalSize) * 100;
+                    if (widthPercent > 0 && widthPercent < 0.2) widthPercent = 0.2;
+
+                    const div = document.createElement('div');
+                    div.className = 'memory-segment';
+                    if (seg.isOverlap) {
+                        div.style.animation = 'flashWarningAnim 0.5s infinite alternate';
+                        div.style.boxShadow = '0 0 5px var(--error-color)';
+                    }
+                    div.style.left = leftPercent + '%';
+                    div.style.width = widthPercent + '%';
+                    div.style.backgroundColor = seg.color;
+                    div.style.zIndex = seg.zIndex;
+
+                    const tipText = `[${seg.name}]\n起始: 0x${seg.start.toString(16).toUpperCase().padStart(8, '0')}\n结束: 0x${seg.end.toString(16).toUpperCase().padStart(8, '0')}\n大小: ${(seg.end - seg.start + 1).toLocaleString()} B`;
+
+                    div.addEventListener('mousemove', (e) => {
+                        tooltip.style.opacity = '1';
+                        tooltip.textContent = tipText;
+                        tooltip.style.left = e.clientX + 'px';
+                        tooltip.style.top = (e.clientY - 15) + 'px';
+                    });
+                    div.addEventListener('mouseleave', () => tooltip.style.opacity = '0');
+                    mapBar.appendChild(div);
+                }
+            });
+            
+            const warningEl = document.getElementById('flashWarning');
+            if (overlaps.length > 0) {
+                warningEl.style.display = 'block';
+                warningEl.innerHTML = `🚨 致命警告：检测到两个 HEX 文件在物理地址上发生内存重叠冲突！请检查热力图红色闪烁区域。`;
+            } else if (outOfBounds) {
+                warningEl.style.display = 'block';
+                warningEl.innerHTML = `⚠️ 警告：当前固件大小或地址已超出目标芯片 Flash 物理边界！`;
+            } else {
+                warningEl.style.display = 'none';
+            }
+            
+            const statusEl = document.getElementById('flashStatus');
+            let globalMin = Math.min(appState.filesInfo[1].minAddr, appState.filesInfo[2].minAddr);
+            let globalMaxEnd = Math.max(appState.filesInfo[1].maxEndAddr, appState.filesInfo[2].maxEndAddr);
+            
+            if (isCustom) {
+                statusEl.textContent = `Flash状态：总跨度 ${((globalMaxEnd - globalMin + 1) / 1024).toFixed(2)} KB / 实际写入 ${(totalUsed / 1024).toFixed(2)} KB`;
+            } else {
+                let free = totalSize - totalUsed;
+                let pct = (totalUsed / totalSize) * 100;
+                statusEl.textContent = `Flash状态：已使用 ${(totalUsed / 1024).toFixed(2)} KB / 剩余 ${(free / 1024).toFixed(2)} KB (占用率: ${pct.toFixed(2)}%)`;
+            }
+            
+            buildRamMap(selectedChipKey, chip);
+        }
+
+        function handleMapFileSelect(event) {
+            if (event.target.files.length) {
+                const reader = new FileReader();
+                reader.onload = e => parseMapFile(e.target.result);
+                reader.readAsText(event.target.files[0]);
+            }
+        }
+
+        function parseMapFile(text) {
+            const mapData = {
+                roCode: 0, roData: 0, rwData: 0, ziData: 0, totalRom: 0, heapSize: 0, stackSize: 0, valid: false
+            };
+            
+            const romMatch = text.match(/Total\s+ROM\s+Size\s*\(.*?\)\s+(\d+)/);
+            if (romMatch) mapData.totalRom = parseInt(romMatch[1], 10);
+            
+            const extractSize = (regexList) => {
+                for (let r of regexList) {
+                    const m = text.match(r);
+                    if (m && m[1]) {
+                        return m[1].toLowerCase().startsWith('0x') ? parseInt(m[1], 16) : parseInt(m[1], 10);
+                    }
+                }
+                return 0;
+            };
+
+            mapData.heapSize = extractSize([
+                /Execution Region\s+.*HEAP.*\s*\(Base:\s*(?:0x)?[0-9a-fA-F]+,\s*Size:\s*(0x[0-9a-fA-F]+|\d+)/i,
+                /\bHEAP\s+(?:0x[0-9a-fA-F]+)\s+Section\s+(\d+)/i,
+                /_Min_Heap_Size\s*=\s*(0x[0-9a-fA-F]+|\d+)/i,
+                /(0x[0-9a-fA-F]+|\d+)\s+_Min_Heap_Size/i,
+                /\._user_heap_stack\s+(?:0x[0-9a-fA-F]+)\s+(0x[0-9a-fA-F]+|\d+)/i,
+                /heap_size\s*(?:=)?\s*(0x[0-9a-fA-F]+|\d+)/i,
+                /size.*?heap\s*(0x[0-9a-fA-F]+|\d+)/i,
+                /heap.*?size\s*(0x[0-9a-fA-F]+|\d+)/i
+            ]);
+
+            mapData.stackSize = extractSize([
+                /Execution Region\s+.*STACK.*\s*\(Base:\s*(?:0x)?[0-9a-fA-F]+,\s*Size:\s*(0x[0-9a-fA-F]+|\d+)/i,
+                /\bSTACK\s+(?:0x[0-9a-fA-F]+)\s+Section\s+(\d+)/i,
+                /_Min_Stack_Size\s*=\s*(0x[0-9a-fA-F]+|\d+)/i,
+                /(0x[0-9a-fA-F]+|\d+)\s+_Min_Stack_Size/i,
+                /stack_size\s*(?:=)?\s*(0x[0-9a-fA-F]+|\d+)/i,
+                /size.*?stack\s*(0x[0-9a-fA-F]+|\d+)/i,
+                /stack.*?size\s*(0x[0-9a-fA-F]+|\d+)/i
+            ]);
+
+            // 如果 GCC 使用了复合的 _user_heap_stack 且堆栈未被独立定义
+            if (mapData.heapSize > 0 && mapData.stackSize === 0) {
+                const combinedMatch = text.match(/\._user_heap_stack\s+(?:0x[0-9a-fA-F]+)\s+(0x[0-9a-fA-F]+|\d+)/i);
+                if (combinedMatch) {
+                    const combinedSize = combinedMatch[1].toLowerCase().startsWith('0x') ? parseInt(combinedMatch[1], 16) : parseInt(combinedMatch[1], 10);
+                    mapData.stackSize = Math.floor(combinedSize / 2);
+                    mapData.heapSize = combinedSize - mapData.stackSize;
+                }
+            }
+            appState.mapSymbols = { rom: [], ram: [] };
+            
+            const lines = text.split('\n');
+            lines.forEach(l => {
+                if (l.includes('Grand Totals')) {
+                    const parts = l.trim().split(/\s+/);
+                    if (parts.length >= 7) {
+                        mapData.rwData = parseInt(parts[3], 10);
+                        mapData.ziData = parseInt(parts[4], 10);
+                        mapData.valid = true;
+                    }
+                }
+                
+                // Match Keil ARMCC Global Symbols (e.g. main  0x08000215  Thumb Code  84  main.o)
+                const symMatch = l.match(/^\s+([a-zA-Z0-9_]+)\s+(0x[0-9a-fA-F]+)\s+(Thumb Code|ARM Code|Code|Data|Zero|BSS|PAD)\s+(\d+)\s+/i);
+                if (symMatch) {
+                    const name = symMatch[1];
+                    const type = symMatch[3].toLowerCase();
+                    const size = parseInt(symMatch[4], 10);
+                    if (size > 0 && !name.startsWith('__')) { 
+                        if (type.includes('code')) appState.mapSymbols.rom.push({ name, size });
+                        else appState.mapSymbols.ram.push({ name, size });
+                    }
+                }
+            });
+            
+            const deduplicate = (arr) => {
+                let map = {};
+                arr.forEach(i => { if(!map[i.name] || map[i.name] < i.size) map[i.name] = i.size; });
+                return Object.keys(map).map(k => ({ name: k, size: map[k] }));
+            };
+            appState.mapSymbols.rom = deduplicate(appState.mapSymbols.rom).sort((a,b) => b.size - a.size);
+            appState.mapSymbols.ram = deduplicate(appState.mapSymbols.ram).sort((a,b) => b.size - a.size);
+            // Backup parsing for RW/ZI if "Grand Totals" didn't match perfectly
+            if (!mapData.valid) {
+                const rwRegex = /Total\s+RW\s+Size\s*\(.*?\)\s+(\d+)/;
+                const rwMatch = text.match(rwRegex);
+                if (rwMatch) {
+                    mapData.rwData = parseInt(rwMatch[1], 10);
+                    mapData.ziData = 0;
+                    mapData.valid = true;
+                }
+            }
+
+            if (!mapData.valid) {
+                showToast("未检测到标准 MAP 文件格式数据，解析可能不完整", "warning");
+            } else {
+                showToast(`成功解析 MAP！Heap:${mapData.heapSize} B, Stack:${mapData.stackSize} B, RW:${mapData.rwData} B, ZI:${mapData.ziData} B`, "success");
+            }
+            
+            appState.mapData = mapData;
+            
+            if (document.getElementById('resultsContainer').style.display !== 'none') {
+                buildMemoryMap();
+                buildLeaderboard();
+            }
+            document.getElementById('mapInput').value = '';
+        }
+        
+        function switchLeaderboardTab(tab) {
+            document.getElementById('lbTabRom').classList.remove('active');
+            document.getElementById('lbTabRam').classList.remove('active');
+            document.getElementById('lbContentRom').style.display = 'none';
+            document.getElementById('lbContentRam').style.display = 'none';
+            
+            if (tab === 'rom') {
+                document.getElementById('lbTabRom').classList.add('active');
+                document.getElementById('lbContentRom').style.display = 'block';
+            } else {
+                document.getElementById('lbTabRam').classList.add('active');
+                document.getElementById('lbContentRam').style.display = 'block';
+            }
+        }
+
+        function buildLeaderboard() {
+            const container = document.getElementById('leaderboardContainer');
+            if (!appState.mapSymbols || (appState.mapSymbols.rom.length === 0 && appState.mapSymbols.ram.length === 0)) {
+                container.style.display = 'none';
+                return;
+            }
+            container.style.display = 'block';
+
+            let totalRom = appState.mapData && appState.mapData.totalRom > 0 ? appState.mapData.totalRom : appState.mapSymbols.rom.reduce((s, i) => s + i.size, 0);
+            let totalRam = appState.mapData && (appState.mapData.rwData > 0 || appState.mapData.ziData > 0) ? (appState.mapData.rwData + appState.mapData.ziData) : appState.mapSymbols.ram.reduce((s, i) => s + i.size, 0);
+
+            const renderList = (data, elementId, totalSize) => {
+                const el = document.getElementById(elementId);
+                el.innerHTML = '';
+                let max = data.length > 0 ? data[0].size : 1;
+                for (let i = 0; i < Math.min(10, data.length); i++) {
+                    const item = data[i];
+                    let pct = (item.size / max) * 100;
+                    if (pct < 1) pct = 1; 
+                    
+                    let globalPct = totalSize > 0 ? ((item.size / totalSize) * 100).toFixed(1) + '%' : '-';
+                    
+                    let rankClass = '';
+                    if (i === 0) rankClass = 'rank-1';
+                    else if (i === 1) rankClass = 'rank-2';
+                    else if (i === 2) rankClass = 'rank-3';
+
+                    el.innerHTML += `
+                        <div class="leaderboard-item">
+                            <div class="lb-rank ${rankClass}">${i+1}</div>
+                            <div class="lb-name" title="${item.name}">${item.name}</div>
+                            <div class="lb-bar-container"><div class="lb-bar" style="max-width: ${pct}%; width: ${pct}%;"></div></div>
+                            <div class="lb-size">
+                                <span>${item.size.toLocaleString()} B</span>
+                                <span class="lb-pct">(${globalPct})</span>
+                            </div>
+                        </div>
+                    `;
+                }
+                if (data.length === 0) el.innerHTML = '<div style="text-align:center; color:gray; font-size:12px; margin: 15px 0;">该分类下未提取到符号数据</div>';
+            };
+
+            renderList(appState.mapSymbols.rom, 'lbContentRom', totalRom);
+            renderList(appState.mapSymbols.ram, 'lbContentRam', totalRam);
+        }
+
+        function buildRamMap(chipKey, chip) {
+            const container = document.getElementById('ramMapContainer');
+            if (!appState.mapData || !appState.mapData.valid) {
+                container.style.display = 'none';
+                return;
+            }
+            container.style.display = 'block';
+            
+            const mapData = appState.mapData;
+            let isCustom = chipKey === 'CUSTOM';
+            
+            let ramStart = isCustom ? 0x20000000 : (chip.ramStart || 0x20000000);
+            let ramSize = isCustom ? (mapData.rwData + mapData.ziData + mapData.heapSize + mapData.stackSize) : (chip.ramSize || 1024);
+            if (isCustom && ramSize === 0) ramSize = 1024;
+            
+            document.getElementById('ramStartAddr').textContent = "0x" + ramStart.toString(16).toUpperCase().padStart(8, '0');
+            document.getElementById('ramEndAddr').textContent = "0x" + (ramStart + ramSize - 1).toString(16).toUpperCase().padStart(8, '0');
+            
+            const mismatchWarning = document.getElementById('mapMismatchWarning');
+            let compareSize = appState.hexTotalBytes;
+            if (appState.filesInfo[2] && appState.filesInfo[2].loaded && appState.filesInfo[2].totalBytes > 0) {
+                compareSize = appState.filesInfo[2].totalBytes; // 优先与 App (HEX 2) 比对
+            } else if (appState.filesInfo[1] && appState.filesInfo[1].loaded && appState.filesInfo[1].totalBytes > 0) {
+                compareSize = appState.filesInfo[1].totalBytes;
+            }
+
+            if (mapData.totalRom > 0 && Math.abs(compareSize - mapData.totalRom) > 1024) {
+                mismatchWarning.style.display = 'block';
+            } else {
+                mismatchWarning.style.display = 'none';
+            }
+            
+            const mapBar = document.getElementById('ramMapBar');
+            mapBar.innerHTML = '';
+            const tooltip = document.getElementById('customTooltip');
+            
+            const segments = [
+                { name: 'RW Data (已初始化)', size: mapData.rwData, color: '#409eff' },
+                { name: 'ZI Data (未初始化)', size: mapData.ziData, color: '#e6a23c' },
+                { name: 'Heap (动态堆)', size: mapData.heapSize, color: '#8e44ad' },
+                { name: 'Stack (系统栈)', size: mapData.stackSize, color: '#f56c6c' }
+            ];
+            
+            let currentOffset = 0;
+            let totalRamUsed = 0;
+            
+            segments.forEach(seg => {
+                totalRamUsed += seg.size;
+                if (seg.size > 0) {
+                    let leftPct = (currentOffset / ramSize) * 100;
+                    let widthPct = (seg.size / ramSize) * 100;
+                    
+                    if (leftPct > 100) leftPct = 100;
+                    if (leftPct + widthPct > 100) widthPct = 100 - leftPct;
+                    if (widthPct > 0 && widthPct < 0.2) widthPct = 0.2;
+                    
+                    if (widthPct > 0) {
+                        const div = document.createElement('div');
+                        div.className = 'memory-segment';
+                        div.style.left = leftPct + '%';
+                        div.style.width = widthPct + '%';
+                        div.style.backgroundColor = seg.color;
+                        
+                        div.addEventListener('mousemove', (e) => {
+                            tooltip.style.opacity = '1';
+                            tooltip.textContent = `[${seg.name}]\n大小: ${seg.size.toLocaleString()} B (${(seg.size/1024).toFixed(2)} KB)`;
+                            tooltip.style.left = e.clientX + 'px';
+                            tooltip.style.top = (e.clientY - 15) + 'px';
+                        });
+                        div.addEventListener('mouseleave', () => tooltip.style.opacity = '0');
+                        mapBar.appendChild(div);
+                    }
+                    currentOffset += seg.size;
+                }
+            });
+            
+            const ramWarning = document.getElementById('ramWarning');
+            if (!isCustom && totalRamUsed > ramSize) {
+                ramWarning.style.display = 'block';
+            } else {
+                ramWarning.style.display = 'none';
+            }
+            
+            const statusEl = document.getElementById('ramStatus');
+            const staticVar = mapData.rwData + mapData.ziData;
+            const dynVar = mapData.heapSize + mapData.stackSize;
+            let freeRam = isCustom ? 0 : ramSize - totalRamUsed;
+            let pct = isCustom ? 100 : (totalRamUsed / ramSize) * 100;
+            
+            statusEl.textContent = `静态全局变量 (RW+ZI): ${(staticVar/1024).toFixed(2)} KB | 系统堆栈分配 (Heap+Stack): ${(dynVar/1024).toFixed(2)} KB | 真实剩余可分配 RAM: ${(freeRam/1024).toFixed(2)} KB (占用率: ${pct.toFixed(2)}%)`;
+        }
+
+        // Vector Table Parse
+        function buildVectorTable(buffer, filledLen) {
+            const container = document.getElementById('vectorTableContainer');
+            if (filledLen < 8) { container.style.display = 'none'; return; }
+            container.style.display = 'block';
+
+            const content = document.getElementById('vectorContent');
+            content.innerHTML = '';
+            const dataView = new DataView(buffer.buffer);
+            
+            for(let i=0; i<Math.min(filledLen, 64); i+=4) {
+                if (i+4 > filledLen) break;
+                // Little Endian Cortex-M
+                const val = dataView.getUint32(i, true);
+                const name = VECTOR_NAMES[i/4] || `IRQ_${i/4 - 16}`;
+                const div = document.createElement('div');
+                div.className = 'vector-item';
+                div.innerHTML = `<span style="color:var(--type-color)">${name.padEnd(20, ' ')}</span> : <span style="color:var(--text-color)">0x${val.toString(16).toUpperCase().padStart(8, '0')}</span>`;
+                content.appendChild(div);
+            }
+        }
+
+        function toggleVectorTable() {
+            const content = document.getElementById('vectorContent');
+            const chev = document.getElementById('vectorChevron');
+            if (content.classList.contains('open')) {
+                content.classList.remove('open');
+                chev.textContent = '▼';
+            } else {
+                content.classList.add('open');
+                chev.textContent = '▲';
+            }
+        }
+
+        // Search Cross-Page Logic
+        function searchAddress() {
+            const searchInput = document.getElementById('addressSearch');
+            let query = searchInput.value.trim();
+            searchInput.classList.remove('error');
+
+            if (!query || !/^(0x)?[0-9a-fA-F]+$/.test(query)) {
+                showToast("请输入有效的十六进制地址！", "warning");
+                searchInput.classList.add('error');
+                return;
+            }
+            if (query.toLowerCase().startsWith('0x')) query = query.slice(2);
+            const searchAddr = parseInt(query, 16);
+
+            let exactRecIndex = -1;
+            let closestRecIndex = -1;
+            let minDistance = Infinity;
+
+            for (let i = 0; i < appState.records.length; i++) {
+                const rec = appState.records[i];
+                if (rec.absoluteAddr !== null) {
+                    if (searchAddr >= rec.absoluteAddr && searchAddr < rec.absoluteAddr + rec.len) {
+                        exactRecIndex = i;
+                        break;
+                    }
+                    const distStart = Math.abs(rec.absoluteAddr - searchAddr);
+                    const distEnd = Math.abs((rec.absoluteAddr + rec.len - 1) - searchAddr);
+                    const dist = Math.min(distStart, distEnd);
+                    if (dist < minDistance) { minDistance = dist; closestRecIndex = i; }
+                }
+            }
+
+            let targetIndex = exactRecIndex !== -1 ? exactRecIndex : closestRecIndex;
+            if (targetIndex !== -1) {
+                switchTab('details');
+                
+                const targetPage = Math.floor(targetIndex / appState.pageSize) + 1;
+                if (appState.currentPage !== targetPage) {
+                    appState.currentPage = targetPage;
+                    renderTable();
+                }
+                
+                // Highlight and scroll
+                setTimeout(() => {
+                    const row = document.getElementById(`row-${targetIndex}`);
+                    if (row) {
+                        // 重置动画使其能够反复触发
+                        row.classList.remove('highlight-row');
+                        void row.offsetWidth; // Trigger reflow
+                        
+                        row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        row.classList.add('highlight-row');
+                        setTimeout(() => row.classList.remove('highlight-row'), 1000);
+                        
+                        const addrHexStr = searchAddr.toString(16).toUpperCase();
+                        if (exactRecIndex !== -1) {
+                            showToast(`成功定位到地址 [0x${addrHexStr}]`, "success");
+                        } else {
+                            showToast(`未找到确切地址，已跳转至最近的相邻区域`, "warning");
+                        }
+                    }
+                }, 50); // slight delay to allow render
+            } else {
+                showToast("未找到任何有效数据记录", "error");
+            }
+        }
+
+        // Tab Navigation
+        function switchTab(tabId) {
+            document.getElementById('tabOverview').classList.remove('active');
+            document.getElementById('tabDetails').classList.remove('active');
+            document.getElementById('tabBtnOverview').classList.remove('active');
+            document.getElementById('tabBtnDetails').classList.remove('active');
+            document.getElementById('detailsSearchBox').style.display = 'none';
+            
+            if (tabId === 'overview') {
+                document.getElementById('tabOverview').classList.add('active');
+                document.getElementById('tabBtnOverview').classList.add('active');
+            } else if (tabId === 'details') {
+                document.getElementById('tabDetails').classList.add('active');
+                document.getElementById('tabBtnDetails').classList.add('active');
+                document.getElementById('detailsSearchBox').style.display = 'flex';
+            }
+        }
+
+        // Export BIN
+        function exportBin() {
+            if (!appState.dataBlocks.length) { showToast("无有效数据可导出", "error"); return; }
+            
+            const totalBytes = appState.maxEndAddr - appState.minAddr + 1;
+            if (totalBytes > 1024 * 1024 * 32) { // limit 32MB 
+                showToast("内存跨度过大(>32MB)，为防止浏览器崩溃，暂停直接导出。请检查 HEX 段是否合理。", "error");
+                return;
+            }
+
+            const buffer = new Uint8Array(totalBytes);
+            buffer.fill(0xFF); // Default padding is usually 0xFF for flash
+
+            appState.records.forEach(rec => {
+                if (rec.typeHex === '00' && rec.absoluteAddr !== null) {
+                    const offset = rec.absoluteAddr - appState.minAddr;
+                    for (let i = 0; i < rec.len; i++) {
+                        buffer[offset + i] = parseInt(rec.dataHex.slice(i*2, i*2+2), 16);
+                    }
+                }
+            });
+
+            const blob = new Blob([buffer], { type: 'application/octet-stream' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `firmware_0x${appState.minAddr.toString(16).toUpperCase()}.bin`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showToast("BIN 文件已开始下载", "success");
+        }
+    </script>
+</body>
+</html>

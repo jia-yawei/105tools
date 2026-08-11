@@ -1,0 +1,516 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>I2t 过流保护时间计算</title>
+  <style>
+    :root {
+      --ink: #15202b;
+      --muted: #667585;
+      --line: #cbd5df;
+      --paper: #ffffff;
+      --canvas: #eef2f5;
+      --blue: #0b6ea8;
+      --blue-dark: #07547f;
+      --green: #19724a;
+      --amber: #9a5b00;
+      --red: #af3028;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-width: 320px;
+      color: var(--ink);
+      background: var(--canvas);
+      font-family: "Microsoft YaHei", "Noto Sans SC", Arial, sans-serif;
+      line-height: 1.45;
+    }
+
+    main {
+      width: min(1040px, calc(100% - 32px));
+      margin: 36px auto;
+    }
+
+    header {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 20px;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 25px;
+      font-weight: 700;
+      letter-spacing: 0;
+    }
+
+    .subtitle {
+      margin: 5px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .badge {
+      flex: none;
+      border: 1px solid #83b8d5;
+      border-radius: 4px;
+      padding: 4px 8px;
+      color: var(--blue-dark);
+      background: #e7f4fb;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .tool {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(300px, 0.8fr);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      overflow: hidden;
+      background: var(--paper);
+    }
+
+    .parameters, .result {
+      padding: 24px;
+    }
+
+    .parameters { border-right: 1px solid var(--line); }
+    .result { background: #f9fbfc; }
+
+    h2 {
+      margin: 0 0 18px;
+      font-size: 17px;
+      letter-spacing: 0;
+    }
+
+    .field-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    label {
+      display: block;
+      color: #344454;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .input-wrap { position: relative; margin-top: 6px; }
+
+    input {
+      width: 100%;
+      height: 38px;
+      border: 1px solid #aebdca;
+      border-radius: 4px;
+      padding: 0 46px 0 10px;
+      color: var(--ink);
+      background: #fff;
+      font: inherit;
+      font-size: 14px;
+      outline: none;
+    }
+
+    input:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 2px rgba(11, 110, 168, 0.16);
+    }
+
+    .unit {
+      position: absolute;
+      right: 10px;
+      top: 9px;
+      color: var(--muted);
+      font-size: 12px;
+      pointer-events: none;
+    }
+
+    .wide { grid-column: 1 / -1; }
+
+    details {
+      margin-top: 22px;
+      border-top: 1px solid #d9e1e7;
+      padding-top: 14px;
+    }
+
+    summary {
+      color: #344454;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .advanced { margin-top: 14px; }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 24px;
+    }
+
+    button {
+      height: 38px;
+      border: 1px solid var(--blue);
+      border-radius: 4px;
+      padding: 0 16px;
+      cursor: pointer;
+      background: var(--blue);
+      color: #fff;
+      font: inherit;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    button:hover { background: var(--blue-dark); }
+
+    button.secondary {
+      border-color: #aebdca;
+      background: #fff;
+      color: #344454;
+    }
+
+    button.secondary:hover { background: #f0f4f7; }
+
+    .state {
+      display: inline-flex;
+      align-items: center;
+      min-height: 25px;
+      border-radius: 4px;
+      padding: 3px 7px;
+      background: #e5f4ec;
+      color: var(--green);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .state.warn { background: #fff1d9; color: var(--amber); }
+    .state.error { background: #fbe8e7; color: var(--red); }
+
+    .time {
+      margin: 12px 0 4px;
+      font-variant-numeric: tabular-nums;
+      font-size: 36px;
+      font-weight: 700;
+      letter-spacing: 0;
+      line-height: 1.1;
+    }
+
+    .time.no-trip { font-size: 24px; color: var(--amber); }
+
+    .detail-list {
+      margin: 24px 0 0;
+      border-top: 1px solid #d9e1e7;
+    }
+
+    .detail-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 18px;
+      min-height: 39px;
+      align-items: center;
+      border-bottom: 1px solid #d9e1e7;
+      font-size: 13px;
+    }
+
+    .detail-row span { color: var(--muted); }
+    .detail-row strong { font-variant-numeric: tabular-nums; text-align: right; }
+
+    .formula {
+      margin-top: 22px;
+      padding-top: 14px;
+      border-top: 1px solid #d9e1e7;
+      color: var(--muted);
+      font-size: 12px;
+      font-family: Consolas, "Courier New", monospace;
+      line-height: 1.65;
+      overflow-wrap: anywhere;
+    }
+
+    .error-message {
+      min-height: 18px;
+      margin-top: 12px;
+      color: var(--red);
+      font-size: 13px;
+    }
+
+    @media (max-width: 740px) {
+      main { width: min(100% - 24px, 1040px); margin: 20px auto; }
+      header { align-items: flex-start; flex-direction: column; gap: 10px; }
+      .tool { grid-template-columns: 1fr; }
+      .parameters { border-right: 0; border-bottom: 1px solid var(--line); }
+      .parameters, .result { padding: 18px; }
+    }
+
+    @media (max-width: 460px) {
+      .field-grid { grid-template-columns: 1fr; }
+      .wide { grid-column: auto; }
+      .time { font-size: 30px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <div>
+        <h1>I2t 过流保护时间计算</h1>
+        <p class="subtitle">按固件整数积热与散热规则逐周期仿真</p>
+      </div>
+      <div class="badge">通道无关</div>
+    </header>
+
+    <section class="tool" aria-label="过流保护时间计算器">
+      <div class="parameters">
+        <h2>保护参数</h2>
+        <div class="field-grid">
+          <label>
+            当前电流倍率
+            <span class="input-wrap"><input id="currentMultiple" type="number" min="0" step="0.001" value="1.500"><span class="unit">I/In</span></span>
+          </label>
+          <label>
+            起始保护点
+            <span class="input-wrap"><input id="startMultiple" type="number" min="0" step="0.001" value="1.100"><span class="unit">I/In</span></span>
+          </label>
+          <label>
+            总热量门限
+            <span class="input-wrap"><input id="heatLimit" type="number" min="1" step="1000" value="38000000"><span class="unit">E</span></span>
+          </label>
+          <label>
+            当前累计热量
+            <span class="input-wrap"><input id="initialHeat" type="number" min="0" step="1000" value="0"><span class="unit">E</span></span>
+          </label>
+          <label class="wide">
+            最大仿真时长
+            <span class="input-wrap"><input id="maxSeconds" type="number" min="0.003" step="1" value="600"><span class="unit">s</span></span>
+          </label>
+        </div>
+
+        <details>
+          <summary>算法参数</summary>
+          <div class="field-grid advanced">
+            <label>
+              周期
+              <span class="input-wrap"><input id="periodMs" type="number" min="0.001" step="0.001" value="3"><span class="unit">ms</span></span>
+            </label>
+            <label>
+              归一化基准
+              <span class="input-wrap"><input id="normalizationBase" type="number" min="1" step="1" value="500"><span class="unit">N/In</span></span>
+            </label>
+            <label>
+              积热系数
+              <span class="input-wrap"><input id="heatGain" type="number" min="0" step="1" value="15"><span class="unit">/1024</span></span>
+            </label>
+            <label>
+              热散失移位
+              <span class="input-wrap"><input id="coolShift" type="number" min="1" max="30" step="1" value="15"><span class="unit">bit</span></span>
+            </label>
+          </div>
+        </details>
+
+        <div class="actions">
+          <button id="calculate" type="button">计算</button>
+          <button id="reset" class="secondary" type="button">恢复默认</button>
+        </div>
+        <div id="errorMessage" class="error-message" role="alert"></div>
+      </div>
+
+      <div class="result" aria-live="polite">
+        <h2>计算结果</h2>
+        <div id="status" class="state">已触发</div>
+        <div id="time" class="time">35.697 s</div>
+        <div id="timeText" class="subtitle">35.697 s</div>
+
+        <div class="detail-list">
+          <div class="detail-row"><span>归一化电流点 N</span><strong id="normalizedCurrent">750</strong></div>
+          <div class="detail-row"><span>归一化起始点 N0</span><strong id="normalizedStart">550</strong></div>
+          <div class="detail-row"><span>每周期积热量</span><strong id="stepEnergy">3,808 E</strong></div>
+          <div class="detail-row"><span>触发周期数</span><strong id="cycles">11,899</strong></div>
+          <div class="detail-row"><span>触发时总热量</span><strong id="triggerHeat">38,001,524 E</strong></div>
+        </div>
+
+        <div class="formula">
+          N = floor((I / In) * 基准)<br>
+          I &gt; I0: E = E - floor(E / 2^散热移位) + floor((N^2 - N0^2) * 积热系数 / 1024)<br>
+          I &lt;= I0: E = max(0, E - floor((N0^2 - N^2) * 积热系数 / 1024))
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    (() => {
+      const defaults = {
+        currentMultiple: 1.500,
+        startMultiple: 1.100,
+        heatLimit: 38000000,
+        initialHeat: 0,
+        maxSeconds: 600,
+        periodMs: 3,
+        normalizationBase: 500,
+        heatGain: 15,
+        coolShift: 15
+      };
+
+      const inputIds = Object.keys(defaults);
+      const numberFormat = new Intl.NumberFormat("zh-CN", { maximumFractionDigits: 3 });
+      const integerFormat = new Intl.NumberFormat("zh-CN", { maximumFractionDigits: 0 });
+
+      const getValue = (id) => Number(document.getElementById(id).value);
+      const setText = (id, text) => { document.getElementById(id).textContent = text; };
+
+      function readParameters() {
+        const values = {};
+        for (const id of inputIds) {
+          values[id] = getValue(id);
+          if (!Number.isFinite(values[id])) {
+            throw new Error("请输入有效的数值。");
+          }
+        }
+        if (values.currentMultiple < 0 || values.startMultiple < 0 || values.initialHeat < 0) {
+          throw new Error("电流倍率、起始保护点和当前累计热量不能小于 0。");
+        }
+        if (values.heatLimit <= 0 || values.periodMs <= 0 || values.normalizationBase <= 0 || values.maxSeconds <= 0) {
+          throw new Error("门限、周期、归一化基准和最大仿真时长必须大于 0。");
+        }
+        if (values.heatGain < 0 || !Number.isInteger(values.coolShift) || values.coolShift < 1 || values.coolShift > 30) {
+          throw new Error("积热系数不能小于 0，热散失移位必须为 1 到 30 的整数。");
+        }
+        return values;
+      }
+
+      function formatDuration(milliseconds) {
+        const seconds = milliseconds / 1000;
+        if (seconds < 60) return `${numberFormat.format(seconds)} s`;
+        const minutes = Math.floor(seconds / 60);
+        const remainingSeconds = seconds - minutes * 60;
+        return `${minutes} 分 ${numberFormat.format(remainingSeconds)} 秒`;
+      }
+
+      function updateResult(result) {
+        const status = document.getElementById("status");
+        const time = document.getElementById("time");
+        const timeText = document.getElementById("timeText");
+
+        setText("normalizedCurrent", integerFormat.format(result.current));
+        setText("normalizedStart", integerFormat.format(result.start));
+        setText("stepEnergy", `${integerFormat.format(result.stepEnergy)} E`);
+        setText("cycles", integerFormat.format(result.cycles));
+        setText("triggerHeat", `${integerFormat.format(result.energy)} E`);
+
+        if (result.triggered) {
+          status.className = "state";
+          status.textContent = "已触发";
+          time.className = "time";
+          time.textContent = `${numberFormat.format(result.durationMs / 1000)} s`;
+          timeText.textContent = formatDuration(result.durationMs);
+          return;
+        }
+
+        status.className = result.current <= result.start ? "state warn" : "state error";
+        status.textContent = result.current <= result.start ? "不会积热触发" : "最大仿真时长内未触发";
+        time.className = "time no-trip";
+        time.textContent = "未触发";
+        timeText.textContent = result.reason;
+      }
+
+      function simulate(values) {
+        const current = Math.floor(values.currentMultiple * values.normalizationBase);
+        const start = Math.floor(values.startMultiple * values.normalizationBase);
+        const gainDivisor = 1024;
+        const coolDivisor = 2 ** values.coolShift;
+        const maxCycles = Math.floor(values.maxSeconds * 1000 / values.periodMs);
+        let energy = Math.floor(values.initialHeat);
+        let cycles = 0;
+        let stepEnergy = 0;
+
+        if (energy >= values.heatLimit) {
+          return { triggered: true, current, start, stepEnergy: 0, cycles: 0, energy, durationMs: 0 };
+        }
+
+        if (current > start) {
+          stepEnergy = Math.floor(((current * current - start * start) * values.heatGain) / gainDivisor);
+        } else {
+          stepEnergy = Math.floor(((start * start - current * current) * values.heatGain) / gainDivisor);
+          return {
+            triggered: false,
+            current,
+            start,
+            stepEnergy,
+            cycles: 0,
+            energy,
+            reason: "当前电流不高于起始保护点，累计热量只会散失。"
+          };
+        }
+
+        for (cycles = 1; cycles <= maxCycles; cycles += 1) {
+          const previousEnergy = energy;
+          energy -= Math.floor(energy / coolDivisor);
+          energy += stepEnergy;
+
+          if (energy >= values.heatLimit) {
+            return {
+              triggered: true,
+              current,
+              start,
+              stepEnergy,
+              cycles,
+              energy,
+              durationMs: cycles * values.periodMs
+            };
+          }
+
+          if (energy <= previousEnergy) {
+            return {
+              triggered: false,
+              current,
+              start,
+              stepEnergy,
+              cycles,
+              energy,
+              reason: "积热已达到稳态，无法超过当前总热量门限。"
+            };
+          }
+        }
+
+        return {
+          triggered: false,
+          current,
+          start,
+          stepEnergy,
+          cycles: maxCycles,
+          energy,
+          reason: `在 ${numberFormat.format(values.maxSeconds)} s 仿真窗口内未达到门限。`
+        };
+      }
+
+      function calculate() {
+        const errorMessage = document.getElementById("errorMessage");
+        try {
+          const result = simulate(readParameters());
+          updateResult(result);
+          errorMessage.textContent = "";
+        } catch (error) {
+          errorMessage.textContent = error.message;
+        }
+      }
+
+      document.getElementById("calculate").addEventListener("click", calculate);
+      document.getElementById("reset").addEventListener("click", () => {
+        for (const [id, value] of Object.entries(defaults)) {
+          document.getElementById(id).value = value;
+        }
+        calculate();
+      });
+      inputIds.forEach((id) => document.getElementById(id).addEventListener("keydown", (event) => {
+        if (event.key === "Enter") calculate();
+      }));
+
+      calculate();
+    })();
+  </script>
+</body>
+</html>

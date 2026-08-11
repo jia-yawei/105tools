@@ -1,0 +1,10 @@
+# Local dependency and tool caches
+node_modules/
+**/node_modules/
+**/node_cache/
+
+# Editor and operating-system files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>个人工具门户 - Embedded Studio</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0b0f19;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --card-border: rgba(255, 255, 255, 0.08);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent-hex: #38bdf8;
+            --accent-clock: #a78bfa;
+            --accent-ocp: #f43f5e;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(56, 189, 248, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(167, 139, 250, 0.15) 0px, transparent 50%);
+            background-attachment: fixed;
+            color: var(--text-main);
+            font-family: 'Inter', 'Noto Sans SC', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+        }
+
+        .hero {
+            text-align: center;
+            margin-bottom: 60px;
+            animation: fadeInDown 0.8s ease-out forwards;
+        }
+
+        .hero h1 {
+            font-size: 48px;
+            font-weight: 800;
+            letter-spacing: -1px;
+            margin-bottom: 16px;
+            background: linear-gradient(to right, #38bdf8, #818cf8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p {
+            font-size: 18px;
+            color: var(--text-muted);
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 24px;
+            width: 100%;
+            max-width: 1100px;
+            animation: fadeInUp 0.8s ease-out forwards;
+            animation-delay: 0.2s;
+            opacity: 0;
+        }
+
+        .tool-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 32px;
+            text-decoration: none;
+            color: inherit;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            backdrop-filter: blur(12px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .tool-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: radial-gradient(800px circle at var(--mouse-x) var(--mouse-y), rgba(255,255,255,0.06), transparent 40%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+
+        .tool-card:hover::before {
+            opacity: 1;
+        }
+
+        .tool-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+        }
+
+        .icon-wrapper {
+            width: 56px;
+            height: 56px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+
+        .card-hex .icon-wrapper { background: rgba(56, 189, 248, 0.1); color: var(--accent-hex); }
+        .card-clock .icon-wrapper { background: rgba(167, 139, 250, 0.1); color: var(--accent-clock); }
+        .card-ocp .icon-wrapper { background: rgba(244, 63, 94, 0.1); color: var(--accent-ocp); }
+
+        .tool-card:hover.card-hex { box-shadow: 0 10px 30px rgba(56, 189, 248, 0.15); }
+        .tool-card:hover.card-clock { box-shadow: 0 10px 30px rgba(167, 139, 250, 0.15); }
+        .tool-card:hover.card-ocp { box-shadow: 0 10px 30px rgba(244, 63, 94, 0.15); }
+
+        .tool-info h2 {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .tool-info p {
+            color: var(--text-muted);
+            font-size: 15px;
+            line-height: 1.5;
+        }
+
+        .arrow {
+            margin-top: auto;
+            align-self: flex-start;
+            color: var(--text-muted);
+            font-size: 24px;
+            transition: transform 0.3s, color 0.3s;
+        }
+
+        .tool-card:hover .arrow {
+            transform: translateX(5px);
+            color: var(--text-main);
+        }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 36px; }
+            .tools-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="hero">
+        <h1>个人工具</h1>
+        <p>专业级嵌入式开发辅助工具箱。为您提供精准的固件分析、时钟树仿真以及过流保护计算服务。</p>
+    </div>
+
+    <div class="tools-grid" id="cards">
+        <a href="hex文件分析工具/index.html" class="tool-card card-hex">
+            <div class="icon-wrapper">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="9" y1="15" x2="15" y2="15"></line></svg>
+            </div>
+            <div class="tool-info">
+                <h2>HEX 文件分析</h2>
+                <p>深度解析 Intel HEX 固件文件，支持 MAP 文件导入。提供直观的内存占用热力图、段分布分析与 BIN 文件导出。</p>
+            </div>
+            <div class="arrow">→</div>
+        </a>
+
+        <a href="Arm时钟树/index.html" class="tool-card card-clock">
+            <div class="icon-wrapper">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+            </div>
+            <div class="tool-info">
+                <h2>ARM 时钟树计算</h2>
+                <p>可视化配置与计算 GD32 / STM32 等微控制器的系统时钟树。精准模拟 PLL 乘除系数与外设总线频率。</p>
+            </div>
+            <div class="arrow">→</div>
+        </a>
+
+        <a href="过流保护计算/index.html" class="tool-card card-ocp">
+            <div class="icon-wrapper">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg>
+            </div>
+            <div class="tool-info">
+                <h2>过流保护计算</h2>
+                <p>I2t 整数积热与散热仿真计算。针对电机驱动或电源设计，快速得出精确的过流保护动作时间。</p>
+            </div>
+            <div class="arrow">→</div>
+        </a>
+    </div>
+
+    <script>
+        // 添加鼠标跟随的微妙发光效果
+        document.getElementById("cards").onmousemove = e => {
+            for(const card of document.getElementsByClassName("tool-card")) {
+                const rect = card.getBoundingClientRect(),
+                      x = e.clientX - rect.left,
+                      y = e.clientY - rect.top;
+                card.style.setProperty("--mouse-x", `${x}px`);
+                card.style.setProperty("--mouse-y", `${y}px`);
+            };
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,422 @@
+:root {
+    --bg-base: #f1f5f9; 
+    --panel-bg: #ffffff; 
+    --panel-border: rgba(148, 163, 184, 0.25);
+    
+    --text-primary: #0f172a;
+    --text-secondary: #475569;
+    --text-muted: #94a3b8;
+    
+    --accent-blue: #2563eb;
+    --accent-blue-dim: #eff6ff;
+    --accent-cyan: #0284c7;
+    
+    --accent-indigo: #4f46e5;
+    --accent-indigo-dim: #eef2ff;
+    
+    --accent-purple: #9333ea;
+    --accent-purple-dim: #faf5ff;
+    
+    --danger: #dc2626;
+    --danger-dim: #fef2f2;
+    
+    --radius-main: 12px;
+    --radius-inner: 8px;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.05);
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html, body {
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background-color: var(--bg-base);
+    color: var(--text-primary);
+    -webkit-font-smoothing: antialiased;
+}
+
+.app-layout {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    padding: 10px 14px 14px 14px;
+    gap: 10px;
+}
+
+/* 顶栏 */
+.top-bar {
+    height: 42px;
+    background: var(--panel-bg);
+    border: 1px solid var(--panel-border);
+    border-radius: var(--radius-main);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+    box-shadow: var(--shadow-sm);
+    flex-shrink: 0;
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.logo-icon {
+    font-size: 16px;
+    color: var(--accent-blue);
+}
+
+.top-bar h1 {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.top-mcu-select {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--text-secondary);
+    font-weight: 600;
+}
+
+/* 主双列视口 */
+.main-viewport {
+    display: flex;
+    flex: 1;
+    gap: 12px;
+    min-height: 0; /* 关键：防止 Flex 子级溢出 */
+}
+
+/* 左侧 Sidebar */
+.sidebar-panel {
+    width: 320px;
+    background: var(--panel-bg);
+    border: 1px solid var(--panel-border);
+    border-radius: var(--radius-main);
+    padding: 12px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    box-shadow: var(--shadow-sm);
+    flex-shrink: 0;
+    overflow-y: auto;
+}
+
+.section-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--accent-blue);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid var(--bg-base);
+    padding-bottom: 4px;
+}
+
+.control-block {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.radio-toggle {
+    display: flex;
+    background: var(--bg-base);
+    padding: 2px;
+    border-radius: 6px;
+}
+
+.radio-toggle input[type="radio"] { display: none; }
+
+.radio-toggle label {
+    flex: 1;
+    text-align: center;
+    padding: 5px;
+    font-size: 12px;
+    cursor: pointer;
+    border-radius: 4px;
+    color: var(--text-secondary);
+    font-weight: 600;
+    transition: all 0.15s;
+}
+
+.radio-toggle input[type="radio"]:checked + label {
+    background: #ffffff;
+    color: var(--accent-blue);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+}
+
+.input-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 12px;
+}
+
+.compact-input,
+.input-wrapper input,
+.input-wrapper select {
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    background: #f8fafc;
+    border: 1px solid var(--panel-border);
+    border-radius: 6px;
+    padding: 5px 8px;
+    font-size: 12px;
+    font-family: 'Consolas', monospace;
+    color: var(--text-primary);
+    outline: none;
+}
+
+.compact-input:focus {
+    border-color: var(--accent-blue);
+    background: #ffffff;
+}
+
+.pll-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    width: 100%;
+}
+
+.pll-grid > div {
+    min-width: 0;
+}
+
+.formula-box {
+    background: var(--accent-blue-dim);
+    border-left: 3px solid var(--accent-blue);
+    padding: 6px 8px;
+    font-family: 'Consolas', monospace;
+    font-size: 11px;
+    color: var(--text-secondary);
+    line-height: 1.4;
+    border-radius: 4px;
+}
+
+.pre-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.pre-cell {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 12px;
+}
+
+.pre-cell label {
+    font-weight: 600;
+    color: var(--text-secondary);
+}
+
+.pre-cell input {
+    width: 65px;
+    text-align: center;
+}
+
+.pre-tag {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--accent-blue);
+    width: 32px;
+    text-align: right;
+}
+
+/* 右侧 Workspace */
+.workspace-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-width: 0;
+    min-height: 0;
+}
+
+/* 顶部 Metrics 栏 */
+.metrics-bar {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    height: 130px;
+    flex-shrink: 0;
+}
+
+.metric-card {
+    background: var(--panel-bg);
+    border: 1px solid var(--panel-border);
+    border-radius: var(--radius-main);
+    padding: 14px 18px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: relative;
+    box-shadow: var(--shadow-sm);
+}
+
+.m-label {
+    font-size: 14px;
+    color: var(--text-muted);
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.m-val {
+    font-size: 36px;
+    font-weight: 800;
+    color: var(--text-primary);
+    line-height: 1.1;
+    font-family: 'Inter', sans-serif;
+}
+
+.m-val small {
+    font-size: 16px;
+    color: var(--accent-blue);
+    font-weight: 600;
+}
+
+.sub-val {
+    font-size: 14px;
+    color: var(--accent-indigo);
+    font-weight: 600;
+    margin-top: 6px;
+}
+
+.limit-warning {
+    display: none;
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    background: var(--danger-dim);
+    color: var(--danger);
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+.limit-warning.show { display: block; }
+.metric-card.error { border-color: var(--danger); }
+
+/* 中部总线矩阵 */
+.bus-columns {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    flex: 1;
+    min-height: 0;
+}
+
+.bus-col {
+    background: var(--panel-bg);
+    border: 1px solid var(--panel-border);
+    border-radius: var(--radius-main);
+    padding: 10px 12px;
+    display: flex;
+    flex-direction: column;
+    box-shadow: var(--shadow-sm);
+    min-height: 0;
+}
+
+.col-header {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 10px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--bg-base);
+}
+
+.peripheral-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-content: flex-start;
+    overflow-y: auto;
+    flex: 1;
+    padding-right: 2px;
+}
+
+.peripheral-item {
+    background: #f8fafc;
+    border: 1px solid var(--panel-border);
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 14px;
+    color: var(--text-primary);
+    font-family: 'Consolas', monospace;
+    font-weight: 600;
+}
+
+/* 底部 Calculator 栏 (1.5倍特大加高版) */
+.calc-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    height: 330px;
+    flex-shrink: 0;
+}
+
+.calc-box {
+    background: var(--panel-bg);
+    border: 1px solid var(--panel-border);
+    border-radius: var(--radius-main);
+    padding: 20px 24px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    box-shadow: var(--shadow-sm);
+}
+
+.box-title {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--accent-blue);
+}
+
+.inline-inputs {
+    display: flex;
+    gap: 20px;
+}
+
+.in-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 18px;
+    color: var(--text-secondary);
+    font-weight: 600;
+}
+
+.in-group input { width: 80px; text-align: center; padding: 8px 12px; font-size: 18px; }
+.in-group select { padding: 8px 14px; font-size: 18px; }
+
+.calc-out {
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--text-primary);
+}
+
+.mini-formula {
+    font-family: 'Consolas', monospace;
+    font-size: 16px;
+    color: var(--text-secondary);
+    background: #f8fafc;
+    padding: 12px 16px;
+    border-radius: 8px;
+    border: 1px solid var(--panel-border);
+    line-height: 1.5;
+}
