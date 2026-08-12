@@ -3,19 +3,21 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>I2t 过流保护时间计算</title>
+  <title>过流保护计算 - Embedded Tools</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../platform.css">
   <style>
     :root {
-      --ink: #15202b;
-      --muted: #667585;
-      --line: #cbd5df;
+      --ink: #14282d;
+      --muted: #607579;
+      --line: #d9e2e3;
       --paper: #ffffff;
-      --canvas: #eef2f5;
-      --blue: #0b6ea8;
-      --blue-dark: #07547f;
-      --green: #19724a;
-      --amber: #9a5b00;
-      --red: #af3028;
+      --canvas: #f3f6f7;
+      --blue: #087f7b;
+      --blue-dark: #066a67;
+      --green: #287a50;
+      --amber: #a85d08;
+      --red: #b83a35;
     }
 
     * { box-sizing: border-box; }
@@ -25,13 +27,13 @@
       min-width: 320px;
       color: var(--ink);
       background: var(--canvas);
-      font-family: "Microsoft YaHei", "Noto Sans SC", Arial, sans-serif;
+      font-family: var(--platform-font);
       line-height: 1.45;
     }
 
     main {
       width: min(1040px, calc(100% - 32px));
-      margin: 36px auto;
+      margin: 28px auto 40px;
     }
 
     header {
@@ -66,13 +68,38 @@
       font-weight: 700;
     }
 
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .home-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      min-height: 30px;
+      border: 1px solid #aebdca;
+      border-radius: 4px;
+      padding: 0 9px;
+      color: #344454;
+      background: var(--paper);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .home-link:hover { border-color: var(--blue); color: var(--blue-dark); background: #f3f9fc; }
+    .home-link:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+
     .tool {
       display: grid;
       grid-template-columns: minmax(0, 1fr) minmax(300px, 0.8fr);
       border: 1px solid var(--line);
-      border-radius: 6px;
+      border-radius: 7px;
       overflow: hidden;
       background: var(--paper);
+      box-shadow: var(--platform-shadow);
     }
 
     .parameters, .result {
@@ -254,13 +281,27 @@
   </style>
 </head>
 <body>
+  <header class="platform-bar">
+    <a class="platform-brand" href="../index.html" aria-label="Embedded Tools 首页">
+      <span class="platform-brand-mark">ET</span>
+      <span class="platform-brand-copy"><strong>Embedded Tools</strong><span>Engineering workspace</span></span>
+    </a>
+    <nav class="platform-nav" aria-label="平台导航">
+      <a href="../index.html">工作台</a>
+      <a href="../hex文件分析工具/index.html">HEX 分析</a>
+      <a href="../Arm时钟树/index.html">时钟树</a>
+      <a class="active" href="index.html">过流保护</a>
+    </nav>
+  </header>
   <main>
     <header>
       <div>
         <h1>I2t 过流保护时间计算</h1>
         <p class="subtitle">按固件整数积热与散热规则逐周期仿真</p>
       </div>
-      <div class="badge">通道无关</div>
+      <div class="header-actions">
+        <div class="badge">通道无关</div>
+      </div>
     </header>
 
     <section class="tool" aria-label="过流保护时间计算器">

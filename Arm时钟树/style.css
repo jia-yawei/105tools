@@ -1,28 +1,28 @@
 :root {
-    --bg-base: #f1f5f9; 
+    --bg-base: #f3f6f7;
     --panel-bg: #ffffff; 
-    --panel-border: rgba(148, 163, 184, 0.25);
+    --panel-border: #d9e2e3;
     
-    --text-primary: #0f172a;
-    --text-secondary: #475569;
-    --text-muted: #94a3b8;
+    --text-primary: #14282d;
+    --text-secondary: #4f676b;
+    --text-muted: #76898c;
     
-    --accent-blue: #2563eb;
-    --accent-blue-dim: #eff6ff;
-    --accent-cyan: #0284c7;
+    --accent-blue: #087f7b;
+    --accent-blue-dim: #e4f3f1;
+    --accent-cyan: #087f7b;
     
-    --accent-indigo: #4f46e5;
-    --accent-indigo-dim: #eef2ff;
+    --accent-indigo: #315d70;
+    --accent-indigo-dim: #e7f0f3;
     
-    --accent-purple: #9333ea;
-    --accent-purple-dim: #faf5ff;
+    --accent-purple: #8a5b24;
+    --accent-purple-dim: #f8eee5;
     
     --danger: #dc2626;
     --danger-dim: #fef2f2;
     
-    --radius-main: 12px;
-    --radius-inner: 8px;
-    --shadow-sm: 0 1px 3px rgba(0,0,0,0.05);
+    --radius-main: 7px;
+    --radius-inner: 5px;
+    --shadow-sm: var(--platform-shadow);
 }
 
 * {
@@ -35,7 +35,7 @@ html, body {
     width: 100%;
     height: 100vh;
     overflow: hidden;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-family: var(--platform-font);
     background-color: var(--bg-base);
     color: var(--text-primary);
     -webkit-font-smoothing: antialiased;
@@ -44,7 +44,7 @@ html, body {
 .app-layout {
     display: flex;
     flex-direction: column;
-    height: 100vh;
+    height: calc(100vh - 58px);
     padding: 10px 14px 14px 14px;
     gap: 10px;
 }
@@ -70,12 +70,21 @@ html, body {
 }
 
 .logo-icon {
-    font-size: 16px;
-    color: var(--accent-blue);
+    min-width: 30px;
+    height: 26px;
+    display: grid;
+    place-items: center;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 800;
+    color: #fff;
+    background: var(--accent-blue);
 }
 
+.context-label { display: block; margin-bottom: 2px; color: var(--text-muted); font-size: 9px; font-weight: 700; }
+
 .top-bar h1 {
-    font-size: 15px;
+    font-size: 14px;
     font-weight: 700;
     color: var(--text-primary);
 }
@@ -88,6 +97,25 @@ html, body {
     color: var(--text-secondary);
     font-weight: 600;
 }
+
+.home-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    min-height: 28px;
+    padding: 0 8px;
+    border: 1px solid var(--panel-border);
+    border-radius: 6px;
+    color: var(--text-secondary);
+    background: #f8fafc;
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.home-link:hover { border-color: var(--accent-blue); color: var(--accent-blue); background: var(--accent-blue-dim); }
+.home-link:focus-visible { outline: 2px solid var(--accent-blue); outline-offset: 2px; }
 
 /* 主双列视口 */
 .main-viewport {
@@ -354,7 +382,7 @@ html, body {
     background: #f8fafc;
     border: 1px solid var(--panel-border);
     padding: 6px 12px;
-    border-radius: 6px;
+    border-radius: 4px;
     font-size: 14px;
     color: var(--text-primary);
     font-family: 'Consolas', monospace;
@@ -419,4 +447,51 @@ html, body {
     border-radius: 8px;
     border: 1px solid var(--panel-border);
     line-height: 1.5;
+}
+
+@media (max-width: 1100px) {
+    html, body { height: auto; min-height: 100%; overflow: auto; }
+    .app-layout { height: auto; min-height: calc(100vh - 58px); }
+    .main-viewport { flex-direction: column; }
+    .sidebar-panel { width: 100%; max-height: none; }
+    .metrics-bar { grid-template-columns: repeat(2, 1fr); height: auto; }
+    .metric-card { min-height: 106px; }
+    .bus-columns { min-height: 260px; }
+}
+
+@media (max-width: 680px) {
+    .app-layout { padding: 8px; gap: 8px; }
+    .top-bar { height: auto; min-height: 48px; padding: 8px 10px; align-items: flex-start; gap: 8px; }
+    .brand { min-width: 0; }
+    .top-bar h1 { line-height: 1.35; }
+    .top-mcu-select { flex-wrap: wrap; justify-content: flex-end; gap: 6px; }
+    .top-mcu-select label { display: none; }
+    .top-mcu-select { min-width: 0; flex: 1; }
+    .top-mcu-select .compact-input { width: min(156px, 100%); }
+    .sidebar-panel { padding: 12px; }
+    .metrics-bar { grid-template-columns: 1fr 1fr; gap: 8px; }
+    .metric-card { min-width: 0; overflow: hidden; }
+    .metric-card { min-height: 88px; padding: 12px; }
+    .m-label, .sub-val { font-size: 12px; }
+    .m-val { font-size: 24px; white-space: nowrap; }
+    .m-val small { font-size: 13px; }
+    .bus-columns, .calc-row { grid-template-columns: 1fr; height: auto; }
+    .bus-columns { min-height: 0; }
+    .bus-col { min-height: 180px; }
+    .calc-row { gap: 10px; }
+    .calc-box { min-height: 250px; padding: 16px; gap: 16px; }
+    .box-title { font-size: 18px; }
+    .inline-inputs { flex-wrap: wrap; gap: 10px; }
+    .in-group { font-size: 14px; }
+    .in-group input { width: 70px; padding: 6px 8px; font-size: 14px; }
+    .in-group select { padding: 6px 8px; font-size: 14px; }
+    .mini-formula { font-size: 13px; padding: 10px; }
+}
+
+@media (max-width: 430px) {
+    .top-bar { flex-wrap: wrap; }
+    .top-mcu-select { flex-basis: 100%; justify-content: stretch; }
+    .top-mcu-select .compact-input { width: 100%; }
+    .metrics-bar { grid-template-columns: 1fr; }
+    .metric-card { min-height: 78px; }
 }

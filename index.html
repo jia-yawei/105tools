@@ -3,227 +3,105 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>个人工具门户 - Embedded Studio</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
+    <title>Embedded Tools - 嵌入式开发工具平台</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="platform.css">
     <style>
-        :root {
-            --bg-color: #0b0f19;
-            --card-bg: rgba(30, 41, 59, 0.7);
-            --card-border: rgba(255, 255, 255, 0.08);
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
-            --accent-hex: #38bdf8;
-            --accent-clock: #a78bfa;
-            --accent-ocp: #f43f5e;
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        body {
-            background-color: var(--bg-color);
-            background-image: 
-                radial-gradient(at 0% 0%, rgba(56, 189, 248, 0.15) 0px, transparent 50%),
-                radial-gradient(at 100% 100%, rgba(167, 139, 250, 0.15) 0px, transparent 50%);
-            background-attachment: fixed;
-            color: var(--text-main);
-            font-family: 'Inter', 'Noto Sans SC', sans-serif;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 40px 20px;
-        }
-
-        .hero {
-            text-align: center;
-            margin-bottom: 60px;
-            animation: fadeInDown 0.8s ease-out forwards;
-        }
-
-        .hero h1 {
-            font-size: 48px;
-            font-weight: 800;
-            letter-spacing: -1px;
-            margin-bottom: 16px;
-            background: linear-gradient(to right, #38bdf8, #818cf8);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .hero p {
-            font-size: 18px;
-            color: var(--text-muted);
-            max-width: 600px;
-            margin: 0 auto;
-            line-height: 1.6;
-        }
-
-        .tools-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 24px;
-            width: 100%;
-            max-width: 1100px;
-            animation: fadeInUp 0.8s ease-out forwards;
-            animation-delay: 0.2s;
-            opacity: 0;
-        }
-
-        .tool-card {
-            background: var(--card-bg);
-            border: 1px solid var(--card-border);
-            border-radius: 16px;
-            padding: 32px;
-            text-decoration: none;
-            color: inherit;
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            backdrop-filter: blur(12px);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .tool-card::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: radial-gradient(800px circle at var(--mouse-x) var(--mouse-y), rgba(255,255,255,0.06), transparent 40%);
-            opacity: 0;
-            transition: opacity 0.3s;
-            pointer-events: none;
-        }
-
-        .tool-card:hover::before {
-            opacity: 1;
-        }
-
-        .tool-card:hover {
-            transform: translateY(-5px);
-            border-color: rgba(255, 255, 255, 0.2);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
-        }
-
-        .icon-wrapper {
-            width: 56px;
-            height: 56px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 28px;
-            margin-bottom: 8px;
-        }
-
-        .card-hex .icon-wrapper { background: rgba(56, 189, 248, 0.1); color: var(--accent-hex); }
-        .card-clock .icon-wrapper { background: rgba(167, 139, 250, 0.1); color: var(--accent-clock); }
-        .card-ocp .icon-wrapper { background: rgba(244, 63, 94, 0.1); color: var(--accent-ocp); }
-
-        .tool-card:hover.card-hex { box-shadow: 0 10px 30px rgba(56, 189, 248, 0.15); }
-        .tool-card:hover.card-clock { box-shadow: 0 10px 30px rgba(167, 139, 250, 0.15); }
-        .tool-card:hover.card-ocp { box-shadow: 0 10px 30px rgba(244, 63, 94, 0.15); }
-
-        .tool-info h2 {
-            font-size: 22px;
-            font-weight: 700;
-            margin-bottom: 8px;
-        }
-
-        .tool-info p {
-            color: var(--text-muted);
-            font-size: 15px;
-            line-height: 1.5;
-        }
-
-        .arrow {
-            margin-top: auto;
-            align-self: flex-start;
-            color: var(--text-muted);
-            font-size: 24px;
-            transition: transform 0.3s, color 0.3s;
-        }
-
-        .tool-card:hover .arrow {
-            transform: translateX(5px);
-            color: var(--text-main);
-        }
-
-        @keyframes fadeInDown {
-            from { opacity: 0; transform: translateY(-20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        @media (max-width: 768px) {
-            .hero h1 { font-size: 36px; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { min-width: 320px; min-height: 100vh; }
+        .home-shell { min-height: 100vh; display: flex; flex-direction: column; }
+        .home-main { width: min(1160px, calc(100% - 40px)); margin: 0 auto; padding: 48px 0 56px; }
+        .home-intro { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: end; gap: 32px; padding-bottom: 28px; border-bottom: 1px solid var(--platform-border); }
+        .home-intro h1 { margin: 0 0 12px; max-width: 720px; color: var(--platform-text); font-size: 36px; line-height: 1.2; }
+        .home-intro p { max-width: 680px; color: var(--platform-muted); font-size: 15px; line-height: 1.7; }
+        .platform-summary { display: flex; align-items: center; gap: 18px; padding: 13px 16px; border: 1px solid var(--platform-border); border-radius: var(--platform-radius); background: var(--platform-surface); }
+        .summary-item { min-width: 68px; }
+        .summary-item + .summary-item { padding-left: 18px; border-left: 1px solid var(--platform-border); }
+        .summary-value { color: var(--platform-text); font-size: 20px; font-weight: 700; }
+        .summary-label { margin-top: 2px; color: var(--platform-muted); font-size: 11px; }
+        .section-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin: 30px 0 14px; }
+        .section-head h2 { font-size: 16px; }
+        .section-head span { color: var(--platform-muted); font-size: 12px; }
+        .tools-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border: 1px solid var(--platform-border); border-radius: var(--platform-radius); overflow: hidden; background: var(--platform-surface); box-shadow: var(--platform-shadow); }
+        .tool-card { position: relative; min-height: 270px; display: flex; flex-direction: column; padding: 25px; color: inherit; text-decoration: none; transition: background .18s ease; }
+        .tool-card + .tool-card { border-left: 1px solid var(--platform-border); }
+        .tool-card:hover { background: var(--platform-surface-subtle); }
+        .tool-card:focus-visible { z-index: 1; outline: 2px solid var(--platform-brand); outline-offset: -2px; }
+        .card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
+        .icon-wrapper { width: 44px; height: 44px; display: grid; place-items: center; border-radius: 6px; color: var(--platform-brand); background: var(--platform-brand-soft); }
+        .module-code { color: var(--platform-muted); font: 600 11px/1.2 Consolas, monospace; }
+        .tool-info { margin-top: 26px; }
+        .tool-info h2 { margin-bottom: 9px; font-size: 18px; }
+        .tool-info p { color: var(--platform-muted); font-size: 13px; line-height: 1.65; }
+        .tool-meta { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: auto; padding-top: 24px; color: var(--platform-muted); font-size: 12px; }
+        .open-action { display: inline-flex; align-items: center; gap: 7px; color: var(--platform-brand-strong); font-weight: 700; }
+        .tool-card:hover .open-action svg { transform: translateX(3px); }
+        .open-action svg { transition: transform .18s ease; }
+        .card-clock .icon-wrapper { color: #315d70; background: #e7f0f3; }
+        .card-ocp .icon-wrapper { color: #9a4d18; background: #f8eee5; }
+        @media (max-width: 850px) {
+            .home-main { width: min(100% - 28px, 1160px); padding-top: 32px; }
+            .home-intro { grid-template-columns: 1fr; align-items: start; }
+            .platform-summary { width: max-content; }
             .tools-grid { grid-template-columns: 1fr; }
+            .tool-card { min-height: 220px; }
+            .tool-card + .tool-card { border-left: 0; border-top: 1px solid var(--platform-border); }
+        }
+        @media (max-width: 520px) {
+            .home-intro h1 { font-size: 29px; }
+            .platform-summary { width: 100%; display: grid; grid-template-columns: 1fr 1fr; }
+            .summary-item { min-width: 0; }
+            .section-head span { display: none; }
         }
     </style>
 </head>
 <body>
+    <div class="home-shell">
+        <header class="platform-bar">
+            <a class="platform-brand" href="index.html" aria-label="Embedded Tools 首页">
+                <span class="platform-brand-mark">ET</span>
+                <span class="platform-brand-copy"><strong>Embedded Tools</strong><span>Engineering workspace</span></span>
+            </a>
+            <nav class="platform-nav" aria-label="平台导航">
+                <a class="active" href="index.html">工作台</a>
+                <a href="hex文件分析工具/index.html">HEX 分析</a>
+                <a href="Arm时钟树/index.html">时钟树</a>
+                <a href="过流保护计算/index.html">过流保护</a>
+            </nav>
+        </header>
 
-    <div class="hero">
-        <h1>个人工具</h1>
-        <p>专业级嵌入式开发辅助工具箱。为您提供精准的固件分析、时钟树仿真以及过流保护计算服务。</p>
+        <main class="home-main">
+            <section class="home-intro">
+                <div>
+                    <p class="platform-eyebrow">Embedded engineering platform</p>
+                    <h1>嵌入式开发工具工作台</h1>
+                    <p>集中管理固件分析、时钟配置与保护参数计算。所有数据均在当前浏览器中处理，适合开发调试与设计验证。</p>
+                </div>
+                <div class="platform-summary" aria-label="平台概览">
+                    <div class="summary-item"><div class="summary-value">3</div><div class="summary-label">可用工具</div></div>
+                    <div class="summary-item"><div class="summary-value">本地</div><div class="summary-label">数据处理</div></div>
+                </div>
+            </section>
+
+            <div class="section-head"><h2>工具模块</h2><span>选择模块进入对应工作区</span></div>
+            <section class="tools-grid" aria-label="工具模块">
+                <a href="hex文件分析工具/index.html" class="tool-card card-hex">
+                    <div class="card-top"><div class="icon-wrapper"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M9 15h6"/></svg></div><span class="module-code">FW-01</span></div>
+                    <div class="tool-info"><h2>HEX 文件分析</h2><p>解析 Intel HEX 与 MAP 文件，检查地址区间、段分布和内存占用，并支持 BIN 导出。</p></div>
+                    <div class="tool-meta"><span>固件与内存</span><span class="open-action">打开工具 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span></div>
+                </a>
+                <a href="Arm时钟树/index.html" class="tool-card card-clock">
+                    <div class="card-top"><div class="icon-wrapper"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div><span class="module-code">CLK-02</span></div>
+                    <div class="tool-info"><h2>ARM 时钟树计算</h2><p>配置 GD32 与 STM32 的时钟源、PLL 和总线分频，实时核对主频及外设时钟限制。</p></div>
+                    <div class="tool-meta"><span>时钟与总线</span><span class="open-action">打开工具 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span></div>
+                </a>
+                <a href="过流保护计算/index.html" class="tool-card card-ocp">
+                    <div class="card-top"><div class="icon-wrapper"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 12h-4l-3 8L9 4l-3 8H2"/></svg></div><span class="module-code">OCP-03</span></div>
+                    <div class="tool-info"><h2>过流保护计算</h2><p>依据固件整数积热与散热规则进行 I2t 周期仿真，快速核算保护动作时间。</p></div>
+                    <div class="tool-meta"><span>保护与仿真</span><span class="open-action">打开工具 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span></div>
+                </a>
+            </section>
+        </main>
     </div>
-
-    <div class="tools-grid" id="cards">
-        <a href="hex文件分析工具/index.html" class="tool-card card-hex">
-            <div class="icon-wrapper">
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="9" y1="15" x2="15" y2="15"></line></svg>
-            </div>
-            <div class="tool-info">
-                <h2>HEX 文件分析</h2>
-                <p>深度解析 Intel HEX 固件文件，支持 MAP 文件导入。提供直观的内存占用热力图、段分布分析与 BIN 文件导出。</p>
-            </div>
-            <div class="arrow">→</div>
-        </a>
-
-        <a href="Arm时钟树/index.html" class="tool-card card-clock">
-            <div class="icon-wrapper">
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-            </div>
-            <div class="tool-info">
-                <h2>ARM 时钟树计算</h2>
-                <p>可视化配置与计算 GD32 / STM32 等微控制器的系统时钟树。精准模拟 PLL 乘除系数与外设总线频率。</p>
-            </div>
-            <div class="arrow">→</div>
-        </a>
-
-        <a href="过流保护计算/index.html" class="tool-card card-ocp">
-            <div class="icon-wrapper">
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg>
-            </div>
-            <div class="tool-info">
-                <h2>过流保护计算</h2>
-                <p>I2t 整数积热与散热仿真计算。针对电机驱动或电源设计，快速得出精确的过流保护动作时间。</p>
-            </div>
-            <div class="arrow">→</div>
-        </a>
-    </div>
-
-    <script>
-        // 添加鼠标跟随的微妙发光效果
-        document.getElementById("cards").onmousemove = e => {
-            for(const card of document.getElementsByClassName("tool-card")) {
-                const rect = card.getBoundingClientRect(),
-                      x = e.clientX - rect.left,
-                      y = e.clientY - rect.top;
-                card.style.setProperty("--mouse-x", `${x}px`);
-                card.style.setProperty("--mouse-y", `${y}px`);
-            };
-        }
-    </script>
 </body>
 </html>
