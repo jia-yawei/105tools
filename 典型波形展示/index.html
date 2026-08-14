@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CAN 典型波形展示 - Embedded Tools</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../platform.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="platform-bar">
+    <a class="platform-brand" href="../index.html" aria-label="Embedded Tools 首页"><span class="platform-brand-mark">ET</span><span class="platform-brand-copy"><strong>Embedded Tools</strong><span>Engineering workspace</span></span></a>
+    <nav class="platform-nav" aria-label="平台导航"><a href="../index.html">工作台</a><a href="../hex文件分析工具/index.html">HEX 分析</a><a href="../Arm时钟树/index.html">时钟树</a><a href="../过流保护计算/index.html">过流保护</a><a href="../模拟量校准计算/index.html">模拟量校准</a><a class="active" href="index.html">典型波形</a></nav>
+  </header>
+
+  <main class="workspace">
+    <header class="page-heading">
+      <div><p class="platform-eyebrow">Bus waveform</p><h1>CAN 典型波形展示</h1><p>按 CAN 2.0 数据帧编码，模拟示波器和逻辑分析仪所见波形</p></div>
+      <span class="protocol-badge">Classic CAN · 8 Byte</span>
+    </header>
+
+    <section class="control-panel" aria-label="CAN 帧配置">
+      <div class="control-main">
+        <div class="field frame-type-field"><span class="field-label">帧格式</span><div class="segmented"><input id="standardFrame" name="frameType" type="radio" value="standard" checked><label for="standardFrame">标准帧</label><input id="extendedFrame" name="frameType" type="radio" value="extended"><label for="extendedFrame">扩展帧</label></div></div>
+        <label class="field">波特率<select id="bitrate"><option value="1000000">1 Mbps</option><option value="800000">800 kbps</option><option value="500000" selected>500 kbps</option><option value="250000">250 kbps</option><option value="125000">125 kbps</option><option value="100000">100 kbps</option><option value="50000">50 kbps</option><option value="20000">20 kbps</option><option value="10000">10 kbps</option></select></label>
+        <label class="field id-field">通信 ID<span class="input-prefix"><span>0x</span><input id="canId" type="text" value="123" maxlength="8" inputmode="text" autocomplete="off"></span><small id="idRange">范围 000–7FF</small></label>
+        <div class="field zoom-field"><span class="field-label">位宽</span><div class="zoom-control"><button id="zoomOut" type="button" title="缩小波形" aria-label="缩小波形">−</button><output id="zoomValue">18 px</output><button id="zoomIn" type="button" title="放大波形" aria-label="放大波形">+</button></div></div>
+      </div>
+      <div class="data-section"><div class="data-heading"><span>数据字节</span><small>固定 DLC = 8，十六进制</small></div><div id="dataBytes" class="byte-grid"></div></div>
+      <div id="errorMessage" class="error-message" role="alert"></div>
+    </section>
+
+    <section class="summary-bar" aria-label="帧摘要">
+      <div><span>帧格式</span><strong id="summaryType">标准数据帧</strong></div><div><span>实际发送位数</span><strong id="totalBits">-</strong></div><div><span>填充位</span><strong id="stuffBits">-</strong></div><div><span>帧持续时间</span><strong id="frameDuration">-</strong></div><div><span>CRC-15</span><strong id="crcValue">-</strong></div>
+    </section>
+
+    <section class="id-map-panel" aria-label="通信 ID 与波形对应关系">
+      <div class="panel-heading"><div><h2>ID 与波形对应</h2><p>每个 ID 位下方标出它在线上波形中的实际 bit 位置；点击位格可定位波形</p></div><strong id="idHexValue">-</strong></div>
+      <div id="idBreakdown" class="id-breakdown"></div>
+      <div id="idBitScroller" class="id-bit-scroller"><div id="idBitMap" class="id-bit-map"></div></div>
+      <div class="stuff-explanation">
+        <div class="stuff-symbol">00000 <b>1</b></div>
+        <div><strong>为什么需要填充位？</strong><p>CAN 使用 NRZ 编码。连续相同电平过长时没有跳变沿，接收节点难以持续校准采样时钟。发送器从 SOF 到 CRC 序列检测到连续 5 个相同位后，自动插入 1 个相反位来制造同步边沿；接收器会自动删除这个黄色位，所以它不属于 ID、DLC 或数据内容，也不会改变通信 ID。若该区域出现连续 6 个相同位，接收器可将其识别为填充错误。</p></div>
+      </div>
+    </section>
+
+    <section class="scope-panel" aria-label="CAN 波形">
+      <div class="scope-toolbar"><div><h2>总线波形</h2><p>上方两层色带依次标注帧区段和具体字段；ACK 槽按接收节点正确应答显示</p></div><div class="legend"><span><i class="logic-line"></i>逻辑</span><span><i class="canh-line"></i>CAN_H</span><span><i class="canl-line"></i>CAN_L</span><span><i class="diff-line"></i>差分</span><span><i class="stuff-mark"></i>填充位</span></div></div>
+      <div id="waveformScroller" class="waveform-scroller" tabindex="0" aria-label="可横向滚动的 CAN 波形图"><svg id="waveform" role="img" aria-label="CAN 数据帧波形"></svg></div>
+      <div class="scope-foot"><span>显性位 0：CAN_H ≈ 3.5 V，CAN_L ≈ 1.5 V，差分 ≈ 2 V</span><span>隐性位 1：CAN_H ≈ CAN_L ≈ 2.5 V，差分 ≈ 0 V</span></div>
+    </section>
+
+    <section class="reading-panel" aria-label="CAN 波形解读">
+      <div class="panel-heading"><div><h2>波形解读</h2><p>位编号按线上实际发送顺序计算，包含黄色标出的填充位</p></div><span id="readingSummary">-</span></div>
+      <div class="reading-basics">
+        <div><strong>从左向右读取</strong><span>SOF 是帧起点，随后依次经过仲裁、控制、8 字节数据、CRC、ACK 和帧结束。</span></div>
+        <div><strong>0 是显性位</strong><span>差分电压拉开：CAN_H 约 3.5 V、CAN_L 约 1.5 V，差分约 2 V，逻辑轨迹位于低电平。</span></div>
+        <div><strong>1 是隐性位</strong><span>两根总线都回到约 2.5 V，差分电压接近 0 V，逻辑轨迹位于高电平。</span></div>
+        <div><strong>黄色是填充位</strong><span>SOF 到 CRC 序列连续出现 5 个相同位后，发送器自动插入一个相反位。</span></div>
+      </div>
+      <div id="fieldGuide" class="field-guide"></div>
+    </section>
+
+    <section class="bit-panel">
+      <div class="panel-heading"><h2>编码明细</h2><span>线上位流已包含位填充、CRC、ACK、EOF 与 3 位帧间隔</span></div>
+      <div class="bit-detail"><div><span>原始字段位</span><code id="rawBits">-</code></div><div><span>线上实际位流</span><code id="wireBits">-</code></div></div>
+    </section>
+  </main>
+  <script src="app.js"></script>
+</body>
+</html>

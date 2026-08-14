@@ -10,7 +10,7 @@
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { min-width: 320px; min-height: 100vh; }
         .home-shell { min-height: 100vh; display: flex; flex-direction: column; }
-        .home-main { width: min(1160px, calc(100% - 40px)); margin: 0 auto; padding: 48px 0 56px; }
+        .home-main { width: min(1160px, calc(100% - 40px)); margin: 0 auto; padding: 34px 0 44px; }
         .home-intro { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: end; gap: 32px; padding-bottom: 28px; border-bottom: 1px solid var(--platform-border); }
         .home-intro h1 { margin: 0 0 12px; max-width: 720px; color: var(--platform-text); font-size: 36px; line-height: 1.2; }
         .home-intro p { max-width: 680px; color: var(--platform-muted); font-size: 15px; line-height: 1.7; }
@@ -22,36 +22,41 @@
         .section-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin: 30px 0 14px; }
         .section-head h2 { font-size: 16px; }
         .section-head span { color: var(--platform-muted); font-size: 12px; }
-        .tools-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border: 1px solid var(--platform-border); border-radius: var(--platform-radius); overflow: hidden; background: var(--platform-surface); box-shadow: var(--platform-shadow); }
-        .tool-card { position: relative; min-height: 270px; display: flex; flex-direction: column; padding: 25px; color: inherit; text-decoration: none; transition: background .18s ease; }
+        .tools-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); border: 1px solid var(--platform-border); border-radius: var(--platform-radius); overflow: hidden; background: var(--platform-surface); box-shadow: var(--platform-shadow); }
+        .tool-card { position: relative; min-height: 190px; display: flex; flex-direction: column; padding: 18px; color: inherit; text-decoration: none; transition: background .18s ease; }
         .tool-card + .tool-card { border-left: 1px solid var(--platform-border); }
         .tool-card:hover { background: var(--platform-surface-subtle); }
         .tool-card:focus-visible { z-index: 1; outline: 2px solid var(--platform-brand); outline-offset: -2px; }
         .card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
-        .icon-wrapper { width: 44px; height: 44px; display: grid; place-items: center; border-radius: 6px; color: var(--platform-brand); background: var(--platform-brand-soft); }
+        .icon-wrapper { width: 38px; height: 38px; display: grid; place-items: center; border-radius: 6px; color: var(--platform-brand); background: var(--platform-brand-soft); }
         .module-code { color: var(--platform-muted); font: 600 11px/1.2 Consolas, monospace; }
-        .tool-info { margin-top: 26px; }
-        .tool-info h2 { margin-bottom: 9px; font-size: 18px; }
-        .tool-info p { color: var(--platform-muted); font-size: 13px; line-height: 1.65; }
-        .tool-meta { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: auto; padding-top: 24px; color: var(--platform-muted); font-size: 12px; }
+        .tool-info { margin-top: 15px; }
+        .tool-info h2 { margin-bottom: 7px; font-size: 16px; }
+        .tool-info p { display: -webkit-box; overflow: hidden; color: var(--platform-muted); font-size: 12px; line-height: 1.55; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+        .tool-meta { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: auto; padding-top: 15px; color: var(--platform-muted); font-size: 11px; }
         .open-action { display: inline-flex; align-items: center; gap: 7px; color: var(--platform-brand-strong); font-weight: 700; }
         .tool-card:hover .open-action svg { transform: translateX(3px); }
         .open-action svg { transition: transform .18s ease; }
         .card-clock .icon-wrapper { color: #315d70; background: #e7f0f3; }
         .card-ocp .icon-wrapper { color: #9a4d18; background: #f8eee5; }
+        .card-adc .icon-wrapper { color: #6f5630; background: #f4efe4; }
+        .card-can .icon-wrapper { color: #7a3e62; background: #f4eaf0; }
         @media (max-width: 850px) {
             .home-main { width: min(100% - 28px, 1160px); padding-top: 32px; }
             .home-intro { grid-template-columns: 1fr; align-items: start; }
             .platform-summary { width: max-content; }
-            .tools-grid { grid-template-columns: 1fr; }
-            .tool-card { min-height: 220px; }
-            .tool-card + .tool-card { border-left: 0; border-top: 1px solid var(--platform-border); }
+            .tools-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .tool-card { min-height: 190px; }
+            .tool-card:nth-child(2n+1) { border-left: 0; }
+            .tool-card:nth-child(n+3) { border-top: 1px solid var(--platform-border); }
         }
         @media (max-width: 520px) {
             .home-intro h1 { font-size: 29px; }
             .platform-summary { width: 100%; display: grid; grid-template-columns: 1fr 1fr; }
             .summary-item { min-width: 0; }
             .section-head span { display: none; }
+            .tools-grid { grid-template-columns: 1fr; }
+            .tool-card + .tool-card { border-left: 0; border-top: 1px solid var(--platform-border); }
         }
     </style>
 </head>
@@ -67,6 +72,8 @@
                 <a href="hex文件分析工具/index.html">HEX 分析</a>
                 <a href="Arm时钟树/index.html">时钟树</a>
                 <a href="过流保护计算/index.html">过流保护</a>
+                <a href="模拟量校准计算/index.html">模拟量校准</a>
+                <a href="典型波形展示/index.html">典型波形</a>
             </nav>
         </header>
 
@@ -75,10 +82,10 @@
                 <div>
                     <p class="platform-eyebrow">Embedded engineering platform</p>
                     <h1>嵌入式开发工具工作台</h1>
-                    <p>集中管理固件分析、时钟配置与保护参数计算。所有数据均在当前浏览器中处理，适合开发调试与设计验证。</p>
+                    <p>集中管理固件分析、时钟配置、保护参数、模拟量校准与总线波形展示。所有数据均在当前浏览器中处理，适合开发调试与设计验证。</p>
                 </div>
                 <div class="platform-summary" aria-label="平台概览">
-                    <div class="summary-item"><div class="summary-value">3</div><div class="summary-label">可用工具</div></div>
+                    <div class="summary-item"><div class="summary-value">5</div><div class="summary-label">可用工具</div></div>
                     <div class="summary-item"><div class="summary-value">本地</div><div class="summary-label">数据处理</div></div>
                 </div>
             </section>
@@ -99,6 +106,16 @@
                     <div class="card-top"><div class="icon-wrapper"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 12h-4l-3 8L9 4l-3 8H2"/></svg></div><span class="module-code">OCP-03</span></div>
                     <div class="tool-info"><h2>过流保护计算</h2><p>依据固件整数积热与散热规则进行 I2t 周期仿真，快速核算保护动作时间。</p></div>
                     <div class="tool-meta"><span>保护与仿真</span><span class="open-action">打开工具 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span></div>
+                </a>
+                <a href="模拟量校准计算/index.html" class="tool-card card-adc">
+                    <div class="card-top"><div class="icon-wrapper"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19V5"/><path d="M4 19h16"/><path d="m7 15 4-5 3 2 4-6"/><circle cx="7" cy="15" r="1"/><circle cx="18" cy="6" r="1"/></svg></div><span class="module-code">ADC-04</span></div>
+                    <div class="tool-info"><h2>模拟量与温度转换</h2><p>计算两点线性校准系数，并支持 STM32F103 内部温度传感器 AD 值转换。</p></div>
+                    <div class="tool-meta"><span>采集与校准</span><span class="open-action">打开工具 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span></div>
+                </a>
+                <a href="典型波形展示/index.html" class="tool-card card-can">
+                    <div class="card-top"><div class="icon-wrapper"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12h3l2-6 4 12 3-9 2 3h4"/></svg></div><span class="module-code">CAN-05</span></div>
+                    <div class="tool-info"><h2>典型波形展示</h2><p>生成标准帧或扩展帧 CAN 2.0 波形，查看示波器上的 CAN_H、CAN_L 电平。</p></div>
+                    <div class="tool-meta"><span>总线与波形</span><span class="open-action">打开工具 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span></div>
                 </a>
             </section>
         </main>

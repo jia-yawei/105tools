@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>模拟量校准系数计算 - Embedded Tools</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../platform.css">
+  <style>
+    :root { --line: var(--platform-border); --muted: var(--platform-muted); --paper: var(--platform-surface); --soft: var(--platform-surface-subtle); --accent: var(--platform-brand); --accent-strong: var(--platform-brand-strong); --accent-soft: var(--platform-brand-soft); --danger: var(--platform-danger); }
+    * { box-sizing: border-box; }
+    body { min-width: 320px; min-height: 100vh; margin: 0; font-family: var(--platform-font); }
+    .workspace { width: calc(100% - 48px); min-height: calc(100vh - 82px); display: flex; flex-direction: column; margin: 14px 24px 10px; }
+    .page-heading { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; margin-bottom: 18px; }
+    .page-heading h1 { margin: 0; font-size: 27px; line-height: 1.25; }
+    .subtitle { margin: 6px 0 0; color: var(--muted); font-size: 13px; }
+    .mode-badge { flex: none; padding: 5px 9px; border: 1px solid #8fc7c2; border-radius: 5px; color: var(--accent-strong); background: var(--accent-soft); font-size: 12px; font-weight: 700; }
+    .mode-switch { width: fit-content; display: flex; gap: 3px; margin-bottom: 14px; padding: 3px; border: 1px solid var(--line); border-radius: 6px; background: #e9eeee; }
+    .mode-switch button { min-height: 32px; border: 0; padding: 0 13px; color: var(--muted); background: transparent; }
+    .mode-switch button:hover { color: var(--platform-text); background: rgba(255,255,255,.55); }
+    .mode-switch button.active { color: var(--accent-strong); background: #fff; box-shadow: 0 1px 2px rgba(20,40,45,.09); }
+    [hidden] { display: none !important; }
+    .calibration-tool { min-width: 0; flex: 1; display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(340px, .95fr); overflow: hidden; border: 1px solid var(--line); border-radius: var(--platform-radius); background: var(--paper); box-shadow: var(--platform-shadow); }
+    .input-panel, .result-panel { min-width: 0; padding: 25px; }
+    .input-panel { border-right: 1px solid var(--line); }
+    .result-panel { background: var(--soft); }
+    h2 { margin: 0 0 17px; font-size: 17px; }
+    .point-list { display: grid; gap: 12px; }
+    .point-row { display: grid; grid-template-columns: 42px minmax(0, 1fr) minmax(0, 1fr); align-items: end; gap: 12px; padding: 15px; border: 1px solid var(--line); border-radius: 6px; background: var(--soft); }
+    .point-index { align-self: center; display: grid; place-items: center; width: 32px; height: 32px; border-radius: 5px; color: var(--accent-strong); background: var(--accent-soft); font-size: 13px; font-weight: 800; }
+    label { min-width: 0; display: block; color: #3c5559; font-size: 12px; font-weight: 700; }
+    .input-wrap { position: relative; display: block; margin-top: 6px; }
+    input { width: 100%; height: 39px; padding: 0 44px 0 10px; border: 1px solid var(--platform-border-strong); border-radius: 5px; outline: 0; color: var(--platform-text); background: #fff; font-size: 14px; font-weight: 600; font-variant-numeric: tabular-nums; }
+    input:focus { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(8, 127, 123, .14); }
+    .unit { position: absolute; right: 10px; top: 11px; color: var(--muted); font-size: 11px; font-weight: 500; pointer-events: none; }
+    details { margin-top: 18px; padding-top: 15px; border-top: 1px solid var(--line); }
+    summary { cursor: pointer; color: #3c5559; font-size: 13px; font-weight: 700; }
+    .adc-settings { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 13px; }
+    .actions { display: flex; align-items: center; gap: 10px; margin-top: 22px; }
+    button { min-height: 38px; padding: 0 15px; border: 1px solid var(--accent); border-radius: 5px; color: #fff; background: var(--accent); cursor: pointer; font: 700 13px var(--platform-font); }
+    button:hover { border-color: var(--accent-strong); background: var(--accent-strong); }
+    button.secondary { border-color: var(--platform-border-strong); color: #3c5559; background: #fff; }
+    button.secondary:hover { border-color: var(--accent); color: var(--accent-strong); background: var(--accent-soft); }
+    .error-message { min-height: 18px; margin-top: 10px; color: var(--danger); font-size: 12px; }
+    .result-label { color: var(--muted); font-size: 12px; font-weight: 700; }
+    .formula-main { margin: 7px 0 18px; color: var(--platform-text); font: 700 28px/1.25 Consolas, monospace; overflow-wrap: anywhere; }
+    .coefficient-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .coefficient { padding: 13px; border: 1px solid var(--line); border-radius: 5px; background: #fff; }
+    .coefficient span { display: block; color: var(--muted); font-size: 11px; }
+    .coefficient strong { display: block; margin-top: 6px; color: var(--accent-strong); font: 700 18px/1.25 Consolas, monospace; overflow-wrap: anywhere; }
+    .detail-list { margin: 20px 0 0; border-top: 1px solid var(--line); }
+    .detail-row { min-height: 39px; display: flex; align-items: center; justify-content: space-between; gap: 18px; border-bottom: 1px solid var(--line); font-size: 12px; }
+    .detail-row span { color: var(--muted); }
+    .detail-row strong { min-width: 0; text-align: right; font-family: Consolas, monospace; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+    .code-box { position: relative; margin-top: 18px; padding: 14px 44px 14px 14px; border: 1px solid var(--line); border-radius: 5px; background: #fff; color: #31545a; font: 12px/1.65 Consolas, monospace; overflow-wrap: anywhere; }
+    .copy-button { position: absolute; top: 8px; right: 8px; width: 29px; min-height: 29px; display: grid; place-items: center; padding: 0; border-color: var(--line); color: var(--muted); background: var(--soft); }
+    .copy-button:hover { color: var(--accent); background: var(--accent-soft); }
+    .verify { margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--line); }
+    .verify h3 { margin: 0 0 11px; font-size: 13px; }
+    .verify-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: end; gap: 10px; }
+    .verify-output { min-width: 145px; min-height: 39px; display: flex; align-items: center; justify-content: flex-end; padding: 0 10px; border: 1px solid var(--line); border-radius: 5px; background: #fff; font: 700 14px Consolas, monospace; }
+    .temperature-tool { min-width: 0; flex: 1; display: grid; grid-template-columns: minmax(0, 1fr) minmax(340px, .85fr); overflow: hidden; border: 1px solid var(--line); border-radius: var(--platform-radius); background: var(--paper); box-shadow: var(--platform-shadow); }
+    .temperature-value { margin: 8px 0 5px; color: var(--platform-text); font: 700 42px/1.15 Consolas, monospace; }
+    .temperature-note { margin: 12px 0 0; padding: 11px 12px; border-left: 3px solid var(--platform-warning); border-radius: 4px; color: #6f593e; background: #faf3e8; font-size: 12px; line-height: 1.65; }
+    .temperature-source { margin: 10px 0 0; color: var(--muted); font-size: 11px; }
+    .temperature-source a { color: var(--accent-strong); }
+    @media (max-width: 760px) { .workspace { width: calc(100% - 24px); min-height: 0; margin: 20px 12px; } .page-heading { align-items: flex-start; flex-direction: column; gap: 10px; } .calibration-tool, .temperature-tool { grid-template-columns: 1fr; } .input-panel { border-right: 0; border-bottom: 1px solid var(--line); } .input-panel, .result-panel { padding: 19px; } }
+    @media (max-width: 500px) { .point-row { min-width: 0; grid-template-columns: 32px minmax(0, 1fr); padding: 13px; } .point-index { grid-row: 1 / 3; } .point-row label { min-width: 0; grid-column: 2; } .adc-settings, .coefficient-grid { grid-template-columns: 1fr; } .verify-row { grid-template-columns: 1fr; } .verify-output { min-width: 0; justify-content: flex-start; } .formula-main { font-size: 22px; } .detail-row { align-items: flex-start; flex-direction: column; gap: 5px; padding: 9px 0; } .detail-row strong { width: 100%; text-align: left; } }
+  </style>
+</head>
+<body>
+  <header class="platform-bar">
+    <a class="platform-brand" href="../index.html" aria-label="Embedded Tools 首页"><span class="platform-brand-mark">ET</span><span class="platform-brand-copy"><strong>Embedded Tools</strong><span>Engineering workspace</span></span></a>
+    <nav class="platform-nav" aria-label="平台导航"><a href="../index.html">工作台</a><a href="../hex文件分析工具/index.html">HEX 分析</a><a href="../Arm时钟树/index.html">时钟树</a><a href="../过流保护计算/index.html">过流保护</a><a class="active" href="index.html">模拟量校准</a><a href="../典型波形展示/index.html">典型波形</a></nav>
+  </header>
+  <main class="workspace">
+    <header class="page-heading"><div><p class="platform-eyebrow">Analog calibration</p><h1>模拟量与温度转换</h1><p id="pageSubtitle" class="subtitle">由两组实测电压与真实值，求解 y = kx + b</p></div><span id="modeBadge" class="mode-badge">两点线性校准</span></header>
+    <div class="mode-switch" role="tablist" aria-label="计算模式"><button id="calibrationTab" class="active" type="button" role="tab" aria-selected="true" aria-controls="calibrationTool">线性校准</button><button id="temperatureTab" type="button" role="tab" aria-selected="false" aria-controls="temperatureTool">内部温度</button></div>
+    <section id="calibrationTool" class="calibration-tool" role="tabpanel" aria-label="模拟量校准系数计算器">
+      <div class="input-panel">
+        <h2>校准数据</h2>
+        <div class="point-list">
+          <div class="point-row"><span class="point-index">P1</span><label>ADC 引脚实测电压<span class="input-wrap"><input id="voltage1" type="number" min="0" max="3.3" step="0.001" value="0.500"><span class="unit">V</span></span></label><label>对应真实值<span class="input-wrap"><input id="real1" type="number" step="any" value="0"><span class="unit">y1</span></span></label></div>
+          <div class="point-row"><span class="point-index">P2</span><label>ADC 引脚实测电压<span class="input-wrap"><input id="voltage2" type="number" min="0" max="3.3" step="0.001" value="2.500"><span class="unit">V</span></span></label><label>对应真实值<span class="input-wrap"><input id="real2" type="number" step="any" value="100"><span class="unit">y2</span></span></label></div>
+        </div>
+        <details><summary>ADC 参数</summary><div class="adc-settings"><label>参考电压<span class="input-wrap"><input id="referenceVoltage" type="number" min="0.001" step="0.001" value="3.3"><span class="unit">Vref</span></span></label><label>满量程 AD 值<span class="input-wrap"><input id="adcFullScale" type="number" min="1" step="1" value="4095"><span class="unit">LSB</span></span></label></div></details>
+        <div class="actions"><button id="calculate" type="button">计算系数</button><button id="reset" class="secondary" type="button">恢复默认</button></div>
+        <div id="errorMessage" class="error-message" role="alert"></div>
+      </div>
+      <div class="result-panel" aria-live="polite">
+        <h2>计算结果</h2><div class="result-label">校准公式</div><div id="formula" class="formula-main">y = 0.04029304 x - 25</div>
+        <div class="coefficient-grid"><div class="coefficient"><span>斜率 k</span><strong id="kValue">0.04029304</strong></div><div class="coefficient"><span>截距 b</span><strong id="bValue">-25</strong></div></div>
+        <div class="detail-list"><div class="detail-row"><span>P1 换算 AD 值 x1</span><strong id="adc1">620.45454545</strong></div><div class="detail-row"><span>P2 换算 AD 值 x2</span><strong id="adc2">3102.27272727</strong></div><div class="detail-row"><span>AD 值换算</span><strong>x = V / Vref × FullScale</strong></div></div>
+        <div class="code-box"><button id="copyFormula" class="copy-button" type="button" title="复制 C 表达式" aria-label="复制 C 表达式"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M15 9V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v7a2 2 0 0 0 2 2h3"/></svg></button><span id="codeExpression">float y = 0.04029304f * adcValue - 25f;</span></div>
+        <div class="verify"><h3>快速验证</h3><div class="verify-row"><label>输入 AD 值<span class="input-wrap"><input id="verifyAdc" type="number" min="0" max="4095" step="1" value="2048"><span class="unit">x</span></span></label><output id="verifyOutput" class="verify-output">y = 57.52014652</output></div></div>
+      </div>
+    </section>
+    <section id="temperatureTool" class="temperature-tool" role="tabpanel" aria-label="芯片内部温度计算器" hidden>
+      <div class="input-panel">
+        <h2>温度传感器数据</h2>
+        <label>温度通道 AD 值<span class="input-wrap"><input id="temperatureAdc" type="number" min="0" max="4095" step="1" value="1774"><span class="unit">ADC</span></span></label>
+        <details>
+          <summary>模型参数</summary>
+          <div class="adc-settings">
+            <label>ADC 参考电压<span class="input-wrap"><input id="temperatureVref" type="number" min="0.001" step="0.001" value="3.3"><span class="unit">V</span></span></label>
+            <label>ADC 满量程<span class="input-wrap"><input id="temperatureFullScale" type="number" min="1" step="1" value="4095"><span class="unit">LSB</span></span></label>
+            <label>25°C 典型电压 V25<span class="input-wrap"><input id="temperatureV25" type="number" min="0" step="0.001" value="1.43"><span class="unit">V</span></span></label>
+            <label>典型斜率 Avg_Slope<span class="input-wrap"><input id="temperatureSlope" type="number" min="0.001" step="0.1" value="4.3"><span class="unit">mV/°C</span></span></label>
+          </div>
+        </details>
+        <div class="actions"><button id="calculateTemperature" type="button">计算温度</button><button id="resetTemperature" class="secondary" type="button">恢复典型值</button></div>
+        <div id="temperatureError" class="error-message" role="alert"></div>
+        <p class="temperature-note">当前采用 STM32F103 数据手册的典型参数。内部温度传感器适合监测温度变化，未经单片校准时不应作为高精度温度计。</p>
+        <p class="temperature-source">来源：<a href="https://www.st.com/resource/en/datasheet/stm32f103c8.pdf" target="_blank" rel="noreferrer">ST STM32F103x8/xB 数据手册</a></p>
+      </div>
+      <div class="result-panel" aria-live="polite">
+        <h2>温度结果</h2><div class="result-label">估算芯片结温</div><div id="temperatureValue" class="temperature-value">25.00 °C</div><p class="subtitle">STM32F103 典型模型</p>
+        <div class="detail-list"><div class="detail-row"><span>温度通道感测电压 Vsense</span><strong id="sensorVoltage">1.4295 V</strong></div><div class="detail-row"><span>使用的 V25</span><strong id="usedV25">1.43 V</strong></div><div class="detail-row"><span>使用的 Avg_Slope</span><strong id="usedSlope">4.3 mV/°C</strong></div></div>
+        <div class="code-box"><span>T = (V25 - Vsense) / Avg_Slope + 25<br>Vsense = ADC / FullScale × Vref</span></div>
+      </div>
+    </section>
+  </main>
+  <script>
+    (() => {
+      const defaults = { voltage1: 0.5, real1: 0, voltage2: 2.5, real2: 100, referenceVoltage: 3.3, adcFullScale: 4095, verifyAdc: 2048 };
+      const temperatureDefaults = { temperatureAdc: 1774, temperatureVref: 3.3, temperatureFullScale: 4095, temperatureV25: 1.43, temperatureSlope: 4.3 };
+      const inputIds = Object.keys(defaults);
+      let coefficients = { k: 0, b: 0 };
+      const getNumber = (id) => Number(document.getElementById(id).value);
+      const format = (value) => { if (!Number.isFinite(value)) return "-"; const magnitude = Math.abs(value); if ((magnitude > 0 && magnitude < 0.000001) || magnitude >= 1000000000) return value.toExponential(8); return value.toFixed(8).replace(/\.?0+$/, ""); };
+      function readValues() {
+        const values = Object.fromEntries(inputIds.map((id) => [id, getNumber(id)]));
+        for (const value of Object.values(values)) if (!Number.isFinite(value)) throw new Error("请输入有效的数值。");
+        if (values.referenceVoltage <= 0 || values.adcFullScale <= 0) throw new Error("参考电压和满量程 AD 值必须大于 0。");
+        if (values.voltage1 < 0 || values.voltage1 > values.referenceVoltage || values.voltage2 < 0 || values.voltage2 > values.referenceVoltage) throw new Error(`实测电压必须在 0 到 ${format(values.referenceVoltage)} V 之间。`);
+        if (values.voltage1 === values.voltage2) throw new Error("两个校准点的实测电压不能相同。");
+        return values;
+      }
+      function updateVerification() { const adc = getNumber("verifyAdc"); document.getElementById("verifyOutput").textContent = Number.isFinite(adc) ? `y = ${format(coefficients.k * adc + coefficients.b)}` : "y = -"; }
+      function calculate() {
+        const error = document.getElementById("errorMessage");
+        try {
+          const values = readValues();
+          const x1 = values.voltage1 / values.referenceVoltage * values.adcFullScale;
+          const x2 = values.voltage2 / values.referenceVoltage * values.adcFullScale;
+          const k = (values.real2 - values.real1) / (x2 - x1);
+          const b = values.real1 - k * x1;
+          coefficients = { k, b };
+          const kText = format(k); const bText = format(b); const sign = b < 0 ? "-" : "+";
+          document.getElementById("formula").textContent = `y = ${kText} x ${sign} ${format(Math.abs(b))}`;
+          document.getElementById("kValue").textContent = kText; document.getElementById("bValue").textContent = bText;
+          document.getElementById("adc1").textContent = format(x1); document.getElementById("adc2").textContent = format(x2);
+          document.getElementById("codeExpression").textContent = `float y = ${kText}f * adcValue ${sign} ${format(Math.abs(b))}f;`;
+          document.getElementById("verifyAdc").max = values.adcFullScale; error.textContent = ""; updateVerification();
+        } catch (err) { error.textContent = err.message; }
+      }
+      function calculateTemperature() {
+        const error = document.getElementById("temperatureError");
+        try {
+          const values = Object.fromEntries(Object.keys(temperatureDefaults).map((id) => [id, getNumber(id)]));
+          for (const value of Object.values(values)) if (!Number.isFinite(value)) throw new Error("请输入有效的数值。");
+          if (values.temperatureFullScale <= 0 || values.temperatureVref <= 0 || values.temperatureSlope <= 0) throw new Error("参考电压、满量程和典型斜率必须大于 0。");
+          if (values.temperatureAdc < 0 || values.temperatureAdc > values.temperatureFullScale) throw new Error(`AD 值必须在 0 到 ${format(values.temperatureFullScale)} 之间。`);
+          const sensorVoltage = values.temperatureAdc / values.temperatureFullScale * values.temperatureVref;
+          const temperature = (values.temperatureV25 - sensorVoltage) / (values.temperatureSlope / 1000) + 25;
+          document.getElementById("temperatureValue").textContent = `${temperature.toFixed(2)} °C`;
+          document.getElementById("sensorVoltage").textContent = `${format(sensorVoltage)} V`;
+          document.getElementById("usedV25").textContent = `${format(values.temperatureV25)} V`;
+          document.getElementById("usedSlope").textContent = `${format(values.temperatureSlope)} mV/°C`;
+          error.textContent = "";
+        } catch (err) { error.textContent = err.message; }
+      }
+      function setMode(mode) {
+        const isCalibration = mode === "calibration";
+        document.getElementById("calibrationTool").hidden = !isCalibration;
+        document.getElementById("temperatureTool").hidden = isCalibration;
+        document.getElementById("calibrationTab").classList.toggle("active", isCalibration);
+        document.getElementById("temperatureTab").classList.toggle("active", !isCalibration);
+        document.getElementById("calibrationTab").setAttribute("aria-selected", String(isCalibration));
+        document.getElementById("temperatureTab").setAttribute("aria-selected", String(!isCalibration));
+        document.getElementById("pageSubtitle").textContent = isCalibration ? "由两组实测电压与真实值，求解 y = kx + b" : "输入内部温度传感器 AD 值，按芯片典型参数估算结温";
+        document.getElementById("modeBadge").textContent = isCalibration ? "两点线性校准" : "STM32F103 典型模型";
+        history.replaceState(null, "", isCalibration ? location.pathname : `${location.pathname}#temperature`);
+      }
+      document.getElementById("calculate").addEventListener("click", calculate);
+      document.getElementById("reset").addEventListener("click", () => { for (const [id, value] of Object.entries(defaults)) document.getElementById(id).value = value; calculate(); });
+      document.getElementById("verifyAdc").addEventListener("input", updateVerification);
+      document.getElementById("copyFormula").addEventListener("click", async () => { const button = document.getElementById("copyFormula"); try { await navigator.clipboard.writeText(document.getElementById("codeExpression").textContent); button.title = "已复制"; setTimeout(() => { button.title = "复制 C 表达式"; }, 1200); } catch { button.title = "浏览器不允许复制"; } });
+      inputIds.filter((id) => id !== "verifyAdc").forEach((id) => { document.getElementById(id).addEventListener("input", calculate); document.getElementById(id).addEventListener("keydown", (event) => { if (event.key === "Enter") calculate(); }); });
+      document.getElementById("calibrationTab").addEventListener("click", () => setMode("calibration"));
+      document.getElementById("temperatureTab").addEventListener("click", () => setMode("temperature"));
+      document.getElementById("calculateTemperature").addEventListener("click", calculateTemperature);
+      document.getElementById("resetTemperature").addEventListener("click", () => { for (const [id, value] of Object.entries(temperatureDefaults)) document.getElementById(id).value = value; calculateTemperature(); });
+      Object.keys(temperatureDefaults).forEach((id) => { document.getElementById(id).addEventListener("input", calculateTemperature); document.getElementById(id).addEventListener("keydown", (event) => { if (event.key === "Enter") calculateTemperature(); }); });
+      calculate(); calculateTemperature(); setMode(location.hash === "#temperature" ? "temperature" : "calibration");
+    })();
+  </script>
+</body>
+</html>

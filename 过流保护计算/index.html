@@ -32,8 +32,11 @@
     }
 
     main {
-      width: min(1040px, calc(100% - 32px));
-      margin: 28px auto 40px;
+      width: calc(100% - 48px);
+      min-height: calc(100vh - 82px);
+      display: flex;
+      flex-direction: column;
+      margin: 14px 24px 10px;
     }
 
     header {
@@ -93,6 +96,7 @@
     .home-link:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
 
     .tool {
+      flex: 1;
       display: grid;
       grid-template-columns: minmax(0, 1fr) minmax(300px, 0.8fr);
       border: 1px solid var(--line);
@@ -266,7 +270,7 @@
     }
 
     @media (max-width: 740px) {
-      main { width: min(100% - 24px, 1040px); margin: 20px auto; }
+      main { width: calc(100% - 24px); min-height: 0; margin: 20px 12px; }
       header { align-items: flex-start; flex-direction: column; gap: 10px; }
       .tool { grid-template-columns: 1fr; }
       .parameters { border-right: 0; border-bottom: 1px solid var(--line); }
@@ -291,6 +295,8 @@
       <a href="../hex文件分析工具/index.html">HEX 分析</a>
       <a href="../Arm时钟树/index.html">时钟树</a>
       <a class="active" href="index.html">过流保护</a>
+      <a href="../模拟量校准计算/index.html">模拟量校准</a>
+      <a href="../典型波形展示/index.html">典型波形</a>
     </nav>
   </header>
   <main>
