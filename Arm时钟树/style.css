@@ -279,7 +279,7 @@ html, body {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 12px;
-    height: 130px;
+    height: 112px;
     flex-shrink: 0;
 }
 
@@ -287,7 +287,7 @@ html, body {
     background: var(--panel-bg);
     border: 1px solid var(--panel-border);
     border-radius: var(--radius-main);
-    padding: 14px 18px;
+    padding: 12px 14px;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -296,14 +296,14 @@ html, body {
 }
 
 .m-label {
-    font-size: 14px;
+    font-size: 12px;
     color: var(--text-muted);
     font-weight: 600;
     margin-bottom: 4px;
 }
 
 .m-val {
-    font-size: 36px;
+    font-size: 28px;
     font-weight: 800;
     color: var(--text-primary);
     line-height: 1.1;
@@ -311,13 +311,13 @@ html, body {
 }
 
 .m-val small {
-    font-size: 16px;
+    font-size: 13px;
     color: var(--accent-blue);
     font-weight: 600;
 }
 
 .sub-val {
-    font-size: 14px;
+    font-size: 12px;
     color: var(--accent-indigo);
     font-weight: 600;
     margin-top: 6px;
@@ -360,7 +360,7 @@ html, body {
 }
 
 .col-header {
-    font-size: 15px;
+    font-size: 13px;
     font-weight: 700;
     color: var(--text-primary);
     margin-bottom: 10px;
@@ -381,20 +381,20 @@ html, body {
 .peripheral-item {
     background: #f8fafc;
     border: 1px solid var(--panel-border);
-    padding: 6px 12px;
+    padding: 5px 8px;
     border-radius: 4px;
-    font-size: 14px;
+    font-size: 12px;
     color: var(--text-primary);
     font-family: 'Consolas', monospace;
     font-weight: 600;
 }
 
-/* 底部 Calculator 栏 (1.5倍特大加高版) */
+/* 底部 Calculator 栏 */
 .calc-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 16px;
-    height: 330px;
+    gap: 12px;
+    height: 240px;
     flex-shrink: 0;
 }
 
@@ -402,7 +402,7 @@ html, body {
     background: var(--panel-bg);
     border: 1px solid var(--panel-border);
     border-radius: var(--radius-main);
-    padding: 20px 24px;
+    padding: 14px 16px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -410,40 +410,40 @@ html, body {
 }
 
 .box-title {
-    font-size: 22px;
+    font-size: 16px;
     font-weight: 700;
     color: var(--accent-blue);
 }
 
 .inline-inputs {
     display: flex;
-    gap: 20px;
+    gap: 12px;
 }
 
 .in-group {
     display: flex;
     align-items: center;
-    gap: 10px;
-    font-size: 18px;
+    gap: 8px;
+    font-size: 13px;
     color: var(--text-secondary);
     font-weight: 600;
 }
 
-.in-group input { width: 80px; text-align: center; padding: 8px 12px; font-size: 18px; }
-.in-group select { padding: 8px 14px; font-size: 18px; }
+.in-group input { width: 72px; text-align: center; padding: 6px 8px; font-size: 13px; }
+.in-group select { padding: 6px 8px; font-size: 13px; }
 
 .calc-out {
-    font-size: 24px;
+    font-size: 18px;
     font-weight: 800;
     color: var(--text-primary);
 }
 
 .mini-formula {
     font-family: 'Consolas', monospace;
-    font-size: 16px;
+    font-size: 12px;
     color: var(--text-secondary);
     background: #f8fafc;
-    padding: 12px 16px;
+    padding: 8px 10px;
     border-radius: 8px;
     border: 1px solid var(--panel-border);
     line-height: 1.5;
@@ -455,7 +455,7 @@ html, body {
     .main-viewport { flex-direction: column; }
     .sidebar-panel { width: 100%; max-height: none; }
     .metrics-bar { grid-template-columns: repeat(2, 1fr); height: auto; }
-    .metric-card { min-height: 106px; }
+    .metric-card { min-height: 94px; }
     .bus-columns { min-height: 260px; }
 }
 
@@ -479,13 +479,13 @@ html, body {
     .bus-columns { min-height: 0; }
     .bus-col { min-height: 180px; }
     .calc-row { gap: 10px; }
-    .calc-box { min-height: 250px; padding: 16px; gap: 16px; }
-    .box-title { font-size: 18px; }
+    .calc-box { min-height: 210px; padding: 14px; gap: 12px; }
+    .box-title { font-size: 16px; }
     .inline-inputs { flex-wrap: wrap; gap: 10px; }
-    .in-group { font-size: 14px; }
-    .in-group input { width: 70px; padding: 6px 8px; font-size: 14px; }
-    .in-group select { padding: 6px 8px; font-size: 14px; }
-    .mini-formula { font-size: 13px; padding: 10px; }
+    .in-group { font-size: 13px; }
+    .in-group input { width: 70px; padding: 6px 8px; font-size: 13px; }
+    .in-group select { padding: 6px 8px; font-size: 13px; }
+    .mini-formula { font-size: 12px; padding: 8px; }
 }
 
 @media (max-width: 430px) {
