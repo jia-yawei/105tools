@@ -377,11 +377,11 @@
         button, input, select { font: inherit; }
 
         .app-shell {
-            padding: 22px 24px 24px;
+            padding: 14px 24px 20px;
             background: var(--workspace-bg);
             display: flex;
             flex-direction: column;
-            gap: 18px;
+            gap: 12px;
             min-height: calc(100vh - 58px);
             overflow-y: auto;
         }
@@ -440,14 +440,12 @@
         </nav>
     </header>
     <div class="app-shell">
-            <div class="tool-heading" style="display: flex; justify-content: space-between; align-items: flex-end; gap: 20px;">
-                <div>
-                    <p class="eyebrow" style="color: var(--accent); font-size: 13px; font-weight: 600; margin: 0 0 6px;">FIRMWARE INSPECTION</p>
-                    <h1 class="tool-title" style="margin: 0; color: var(--text-color); font-size: 28px;">HEX 文件分析</h1>
+            <div class="tool-heading" style="display: flex; justify-content: space-between; align-items: center; gap: 20px;">
+                <div style="display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap;">
+                    <h1 class="tool-title" style="margin: 0; color: var(--text-color); font-size: 21px;">HEX 文件分析</h1>
+                    <p class="tool-description" style="margin: 0; color: var(--mark-color); font-size: 12.5px;">本地解析 Intel HEX 与可选 MAP 文件</p>
                 </div>
-                <div class="heading-actions">
-                    <p class="tool-description" style="margin: 0; color: var(--mark-color); font-size: 13px;">本地解析 Intel HEX 与可选 MAP 文件</p>
-                </div>
+                <div class="heading-actions"></div>
             </div>
             
             <div class="container" style="flex-shrink: 0; padding: 11px 14px; background: var(--panel-bg); border-radius: 7px;">
