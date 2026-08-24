@@ -3,8 +3,7 @@
     --platform-surface: #ffffff;
     --platform-surface-subtle: #f8faf9;
     --platform-border: #d9e2e3;
-    --platform-border-strong: #bdccce;    git config --global http.proxy http://127.0.0.1:端口
-    git config --global https.proxy http://127.0.0.1:端口
+    --platform-border-strong: #bdccce;
     --platform-text: #14282d;
     --platform-muted: #607579;
     --platform-brand: #087f7b;
