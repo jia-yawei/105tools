@@ -4,69 +4,405 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Embedded Tools - 嵌入式开发工具平台</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Sans+SC:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="platform.css">
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { min-width: 320px; min-height: 100vh; }
-        .home-shell { min-height: 100vh; display: flex; flex-direction: column; }
-        .home-main { width: min(1160px, calc(100% - 40px)); margin: 0 auto; padding: 24px 0 36px; }
-
-        /* Hero */
-        .home-hero { position: relative; overflow: hidden; padding: 18px 20px 14px; border-radius: 18px; background: linear-gradient(135deg, #0e2f33 0%, #0a5f5c 100%); color: #fff; box-shadow: 0 18px 40px rgba(8, 127, 123, 0.18); }
-        .home-hero::after { content: ""; position: absolute; right: -80px; top: -80px; width: 300px; height: 300px; border-radius: 50%; background: radial-gradient(circle, rgba(255,255,255,0.14) 0%, rgba(255,255,255,0) 70%); pointer-events: none; }
-        .home-hero::before { content: ""; position: absolute; left: 30%; bottom: -120px; width: 260px; height: 260px; border-radius: 50%; background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0) 70%); pointer-events: none; }
-        .hero-eyebrow { display: inline-flex; align-items: center; gap: 8px; margin-bottom: 10px; padding: 4px 10px; border-radius: 999px; background: rgba(255,255,255,0.12); color: #cdeeea; font-size: 10px; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; }
-        .hero-eyebrow .dot { width: 7px; height: 7px; border-radius: 50%; background: #4fd1c5; box-shadow: 0 0 0 3px rgba(79,209,197,0.25); }
-        .home-hero h1 { position: relative; z-index: 1; margin: 0 0 8px; max-width: 640px; font-size: 24px; line-height: 1.25; font-weight: 800; letter-spacing: -0.01em; }
-        .home-hero p { position: relative; z-index: 1; max-width: 600px; color: rgba(255,255,255,0.82); font-size: 15px; line-height: 1.75; }
-        .hero-stats { position: relative; z-index: 1; display: flex; gap: 12px; margin-top: 28px; flex-wrap: wrap; }
-        .stat-pill { display: inline-flex; align-items: center; gap: 10px; padding: 10px 16px; border-radius: 12px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.14); backdrop-filter: blur(4px); }
-        .stat-pill strong { font-size: 20px; font-weight: 800; }
-        .stat-pill span { color: rgba(255,255,255,0.72); font-size: 12px; }
-
-        /* Section head */
-        .section-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin: 16px 0 10px; }
-        .section-head h2 { font-size: 18px; font-weight: 800; letter-spacing: -0.01em; }
-        .section-head span { color: var(--platform-muted); font-size: 13px; }
-
-        /* Tools grid */
-        .tools-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 16px; }
-        .tool-card { position: relative; min-height: 150px; display: flex; flex-direction: column; padding: 14px; color: inherit; text-decoration: none; background: var(--platform-surface); border: 1px solid var(--platform-border); border-radius: 14px; box-shadow: 0 1px 2px rgba(20,40,45,0.04); transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease; }
-        .tool-card:hover { transform: translateY(-4px); border-color: var(--platform-border-strong); box-shadow: 0 14px 30px rgba(20,40,45,0.10); }
-        .tool-card:focus-visible { outline: 2px solid var(--platform-brand); outline-offset: 2px; }
-        .card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
-        .icon-wrapper { width: 32px; height: 32px; display: grid; place-items: center; border-radius: 11px; color: var(--platform-brand); background: var(--platform-brand-soft); }
-        .module-code { color: var(--platform-muted); font: 600 11px/1.2 Consolas, monospace; padding-top: 3px; }
-        .tool-info { margin-top: 10px; }
-        .tool-info h2 { margin-bottom: 8px; font-size: 16px; font-weight: 700; letter-spacing: -0.01em; }
-        .tool-info p { display: -webkit-box; overflow: hidden; color: var(--platform-muted); font-size: 12.5px; line-height: 1.6; -webkit-box-orient: vertical; -webkit-line-clamp: 3; line-clamp: 3; }
-        .tool-meta { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: auto; padding-top: 8px; color: var(--platform-muted); font-size: 11px; }
-        .open-action { display: inline-flex; align-items: center; gap: 7px; color: var(--platform-brand-strong); font-weight: 700; }
-        .tool-card:hover .open-action svg { transform: translateX(3px); }
-        .open-action svg { transition: transform .2s ease; }
-        .card-clock .icon-wrapper { color: #315d70; background: #e7f0f3; }
-        .card-ocp .icon-wrapper { color: #9a4d18; background: #f8eee5; }
-        .card-adc .icon-wrapper { color: #6f5630; background: #f4efe4; }
-        .card-can .icon-wrapper { color: #7a3e62; background: #f4eaf0; }
-
-        @media (max-width: 1000px) {
-            .tools-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+        body {
+            min-width: 320px;
+            min-height: 100vh;
+            background-color: var(--platform-bg);
+            background-image: 
+                radial-gradient(at 100% 0%, rgba(2, 132, 199, 0.06) 0px, transparent 50%),
+                radial-gradient(at 0% 100%, rgba(99, 102, 241, 0.05) 0px, transparent 50%);
+            background-attachment: fixed;
+            color: var(--platform-text);
+            font-family: 'Plus Jakarta Sans', var(--platform-font);
+            -webkit-font-smoothing: antialiased;
         }
-        @media (max-width: 850px) {
-            .home-main { width: min(100% - 28px, 1160px); padding-top: 32px; }
-            .home-hero { padding: 24px 22px 20px; }
-            .home-hero h1 { font-size: 22px; }
+
+        .home-shell {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
-        @media (max-width: 640px) {
-            .tools-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-            .tool-card { min-height: 200px; }
+
+        .home-main {
+            width: min(1200px, calc(100% - 48px));
+            margin: 0 auto;
+            padding: 32px 0 64px;
+            flex: 1;
         }
-        @media (max-width: 520px) {
-            .home-hero h1 { font-size: 27px; }
-            .section-head span { display: none; }
-            .tools-grid { grid-template-columns: 1fr; }
-            .tool-card { min-height: 0; }
+
+        /* Hero Section */
+        .home-hero {
+            position: relative;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            border-radius: 20px;
+            padding: 40px 44px;
+            color: #fff;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 20px 40px -15px rgba(15, 23, 42, 0.25);
+            margin-bottom: 36px;
+        }
+
+        .home-hero::before {
+            content: "";
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(56, 189, 248, 0.15) 0%, rgba(99, 102, 241, 0.08) 40%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .home-hero::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background-image: radial-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px);
+            background-size: 24px 24px;
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+            max-width: 720px;
+        }
+
+        .hero-eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 14px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: #7dd3fc;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            margin-bottom: 16px;
+            backdrop-filter: blur(8px);
+        }
+
+        .hero-eyebrow .dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #38bdf8;
+            box-shadow: 0 0 10px #38bdf8;
+            animation: pulse-dot 2s infinite ease-in-out;
+        }
+
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.85); }
+        }
+
+        .home-hero h1 {
+            font-size: 30px;
+            font-weight: 800;
+            line-height: 1.25;
+            letter-spacing: -0.02em;
+            margin-bottom: 12px;
+            background: linear-gradient(to right, #ffffff, #cbd5e1);
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .home-hero p {
+            color: #94a3b8;
+            font-size: 15px;
+            line-height: 1.7;
+            font-weight: 400;
+        }
+
+        .hero-stats {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            gap: 16px;
+            margin-top: 28px;
+            flex-wrap: wrap;
+        }
+
+        .stat-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 18px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(8px);
+            transition: background 0.2s ease, border-color 0.2s ease;
+        }
+
+        .stat-pill:hover {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.16);
+        }
+
+        .stat-pill strong {
+            font-size: 18px;
+            font-weight: 700;
+            color: #f8fafc;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .stat-pill span {
+            color: #94a3b8;
+            font-size: 13px;
+        }
+
+        /* Section Head */
+        .section-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding: 0 4px;
+        }
+
+        .section-head-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-head h2 {
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+            color: var(--platform-text);
+        }
+
+        .section-badge {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--platform-brand);
+            background: var(--platform-brand-soft);
+            padding: 2px 8px;
+            border-radius: 20px;
+        }
+
+        .section-head span.desc {
+            color: var(--platform-muted);
+            font-size: 13px;
+        }
+
+        /* Tools Grid */
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 22px;
+        }
+
+        .tool-card {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            padding: 24px;
+            color: inherit;
+            text-decoration: none;
+            background: var(--platform-surface);
+            border: 1px solid var(--platform-border);
+            border-radius: 16px;
+            box-shadow: var(--platform-shadow);
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            overflow: hidden;
+        }
+
+        .tool-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: transparent;
+            transition: background 0.25s ease;
+        }
+
+        .tool-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--platform-border-strong);
+            box-shadow: var(--platform-shadow-md);
+        }
+
+        .tool-card:focus-visible {
+            outline: 2px solid var(--platform-brand);
+            outline-offset: 2px;
+        }
+
+        /* Card Top */
+        .card-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .icon-wrapper {
+            width: 44px;
+            height: 44px;
+            display: grid;
+            place-items: center;
+            border-radius: 12px;
+            transition: transform 0.25s ease;
+        }
+
+        .tool-card:hover .icon-wrapper {
+            transform: scale(1.06);
+        }
+
+        .module-code {
+            color: var(--platform-muted);
+            font-family: 'JetBrains Mono', Consolas, monospace;
+            font-size: 11px;
+            font-weight: 600;
+            padding: 4px 8px;
+            background: var(--platform-surface-subtle);
+            border: 1px solid var(--platform-border);
+            border-radius: 6px;
+        }
+
+        /* Tool Info */
+        .tool-info h3 {
+            font-size: 17px;
+            font-weight: 700;
+            color: var(--platform-text);
+            margin-bottom: 8px;
+            letter-spacing: -0.01em;
+        }
+
+        .tool-info p {
+            color: var(--platform-muted);
+            font-size: 13.5px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        /* Tool Meta & Action */
+        .tool-meta {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: auto;
+            padding-top: 14px;
+            border-top: 1px solid var(--platform-border);
+            font-size: 12px;
+            color: var(--platform-muted);
+        }
+
+        .meta-tag {
+            font-weight: 500;
+        }
+
+        .open-action {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 600;
+            font-size: 13px;
+            color: var(--platform-brand-strong);
+            transition: color 0.2s ease;
+        }
+
+        .open-action svg {
+            transition: transform 0.2s ease;
+        }
+
+        .tool-card:hover .open-action svg {
+            transform: translateX(4px);
+        }
+
+        /* Theme Variations per Tool */
+        /* 1. Hex Analysis */
+        .card-hex .icon-wrapper {
+            background: #eff6ff;
+            color: #2563eb;
+        }
+        .card-hex:hover::before { background: #2563eb; }
+        .card-hex:hover .open-action { color: #2563eb; }
+
+        /* 2. Clock Tree */
+        .card-clock .icon-wrapper {
+            background: #f0fdfa;
+            color: #0d9488;
+        }
+        .card-clock:hover::before { background: #0d9488; }
+        .card-clock:hover .open-action { color: #0d9488; }
+
+        /* 3. Overcurrent Protection */
+        .card-ocp .icon-wrapper {
+            background: #fff7ed;
+            color: #ea580c;
+        }
+        .card-ocp:hover::before { background: #ea580c; }
+        .card-ocp:hover .open-action { color: #ea580c; }
+
+        /* 4. ADC / Temp */
+        .card-adc .icon-wrapper {
+            background: #f0fdf4;
+            color: #16a34a;
+        }
+        .card-adc:hover::before { background: #16a34a; }
+        .card-adc:hover .open-action { color: #16a34a; }
+
+        /* 5. Typical Waveform */
+        .card-can .icon-wrapper {
+            background: #faf5ff;
+            color: #9333ea;
+        }
+        .card-can:hover::before { background: #9333ea; }
+        .card-can:hover .open-action { color: #9333ea; }
+
+        /* Footer */
+        .platform-footer {
+            margin-top: auto;
+            padding: 24px 0;
+            text-align: center;
+            border-top: 1px solid var(--platform-border);
+            color: var(--platform-muted);
+            font-size: 13px;
+            background: var(--platform-surface);
+        }
+
+        @media (max-width: 768px) {
+            .home-main {
+                width: calc(100% - 32px);
+                padding: 20px 0 40px;
+            }
+            .home-hero {
+                padding: 28px 24px;
+                border-radius: 16px;
+            }
+            .home-hero h1 {
+                font-size: 24px;
+            }
+            .tools-grid {
+                grid-template-columns: 1fr;
+            }
+            .section-head {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 4px;
+            }
         }
     </style>
 </head>
@@ -75,7 +411,10 @@
         <header class="platform-bar">
             <a class="platform-brand" href="index.html" aria-label="Embedded Tools 首页">
                 <span class="platform-brand-mark">ET</span>
-                <span class="platform-brand-copy"><strong>Embedded Tools</strong><span>Engineering workspace</span></span>
+                <span class="platform-brand-copy">
+                    <strong>Embedded Tools</strong>
+                    <span>Engineering Workspace</span>
+                </span>
             </a>
             <nav class="platform-nav" aria-label="平台导航">
                 <a class="active" href="index.html">工作台</a>
@@ -89,45 +428,147 @@
 
         <main class="home-main">
             <section class="home-hero" aria-label="平台概览">
-                <span class="hero-eyebrow"><span class="dot"></span>Embedded engineering platform</span>
-                <h1>嵌入式开发工具工作台</h1>
-                <p>集中管理固件分析、时钟配置、保护参数、模拟量校准与总线波形展示。所有数据均在当前浏览器中处理，适合开发调试与设计验证。</p>
+                <div class="hero-content">
+                    <div class="hero-eyebrow">
+                        <span class="dot"></span>
+                        Embedded Engineering Workspace
+                    </div>
+                    <h1>嵌入式研发工具工作台</h1>
+                    <p>集成固件分析、时钟配置、保护参数仿真、模拟量线性校准及总线波形生成。所有计算与数据完全在本地浏览器中运行，高效私密。</p>
+                </div>
                 <div class="hero-stats">
-                    <div class="stat-pill"><strong>5</strong><span>可用工具</span></div>
-                    <div class="stat-pill"><strong>本地</strong><span>数据处理</span></div>
-                    <div class="stat-pill"><strong>0</strong><span>数据上传</span></div>
+                    <div class="stat-pill">
+                        <strong>5</strong>
+                        <span>个工程工具</span>
+                    </div>
+                    <div class="stat-pill">
+                        <strong>Client-Side</strong>
+                        <span>纯本地离线计算</span>
+                    </div>
+                    <div class="stat-pill">
+                        <strong>0 Byte</strong>
+                        <span>无数据云端上传</span>
+                    </div>
                 </div>
             </section>
 
-            <div class="section-head"><h2>工具模块</h2><span>选择模块进入对应工作区</span></div>
+            <div class="section-head">
+                <div class="section-head-title">
+                    <h2>工具模块</h2>
+                    <span class="section-badge">5 Modules</span>
+                </div>
+                <span class="desc">点击对应卡片即可快速进入对应工作区</span>
+            </div>
+
             <section class="tools-grid" aria-label="工具模块">
                 <a href="hex文件分析工具/index.html" class="tool-card card-hex">
-                    <div class="card-top"><div class="icon-wrapper"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M9 15h6"/></svg></div><span class="module-code">FW-01</span></div>
-                    <div class="tool-info"><h2>HEX 文件分析</h2><p>解析 Intel HEX 与 MAP 文件，检查地址区间、段分布和内存占用，并支持 BIN 导出。</p></div>
-                    <div class="tool-meta"><span>固件与内存</span><span class="open-action">打开工具 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span></div>
+                    <div class="card-top">
+                        <div class="icon-wrapper">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                                <path d="M14 2v6h6"/>
+                                <path d="M16 13H8"/>
+                                <path d="M16 17H8"/>
+                                <path d="M10 9H8"/>
+                            </svg>
+                        </div>
+                        <span class="module-code">FW-01</span>
+                    </div>
+                    <div class="tool-info">
+                        <h3>HEX 文件分析</h3>
+                        <p>解析 Intel HEX 与 MAP 文件，可视化检查 Flash/RAM 段分布与内存占用，支持 BIN 导出与合并。</p>
+                    </div>
+                    <div class="tool-meta">
+                        <span class="meta-tag">固件与内存</span>
+                        <span class="open-action">进入工具 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m9 18 6-6-6-6"/></svg></span>
+                    </div>
                 </a>
+
                 <a href="Arm时钟树/index.html" class="tool-card card-clock">
-                    <div class="card-top"><div class="icon-wrapper"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div><span class="module-code">CLK-02</span></div>
-                    <div class="tool-info"><h2>ARM 时钟树计算</h2><p>配置 GD32 与 STM32 的时钟源、PLL 和总线分频，实时核对主频及外设时钟限制。</p></div>
-                    <div class="tool-meta"><span>时钟与总线</span><span class="open-action">打开工具 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span></div>
+                    <div class="card-top">
+                        <div class="icon-wrapper">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"/>
+                                <polyline points="12 6 12 12 16 14"/>
+                            </svg>
+                        </div>
+                        <span class="module-code">CLK-02</span>
+                    </div>
+                    <div class="tool-info">
+                        <h3>ARM 时钟树计算</h3>
+                        <p>配置 GD32 与 STM32 的系统时钟源、PLL 倍频与总线分频，实时核对各外设极限频率约束。</p>
+                    </div>
+                    <div class="tool-meta">
+                        <span class="meta-tag">时钟与总线</span>
+                        <span class="open-action">进入工具 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m9 18 6-6-6-6"/></svg></span>
+                    </div>
                 </a>
+
                 <a href="过流保护计算/index.html" class="tool-card card-ocp">
-                    <div class="card-top"><div class="icon-wrapper"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 12h-4l-3 8L9 4l-3 8H2"/></svg></div><span class="module-code">OCP-03</span></div>
-                    <div class="tool-info"><h2>过流保护计算</h2><p>依据固件整数积热与散热规则进行 I2t 周期仿真，快速核算保护动作时间。</p></div>
-                    <div class="tool-meta"><span>保护与仿真</span><span class="open-action">打开工具 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span></div>
+                    <div class="card-top">
+                        <div class="icon-wrapper">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+                            </svg>
+                        </div>
+                        <span class="module-code">OCP-03</span>
+                    </div>
+                    <div class="tool-info">
+                        <h3>过流保护计算</h3>
+                        <p>依据固件整数积热与散热物理规则进行 I²t 周期仿真，精确校验反时限保护动作曲线与触发阈值。</p>
+                    </div>
+                    <div class="tool-meta">
+                        <span class="meta-tag">保护与仿真</span>
+                        <span class="open-action">进入工具 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m9 18 6-6-6-6"/></svg></span>
+                    </div>
                 </a>
+
                 <a href="模拟量校准计算/index.html" class="tool-card card-adc">
-                    <div class="card-top"><div class="icon-wrapper"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19V5"/><path d="M4 19h16"/><path d="m7 15 4-5 3 2 4-6"/><circle cx="7" cy="15" r="1"/><circle cx="18" cy="6" r="1"/></svg></div><span class="module-code">ADC-04</span></div>
-                    <div class="tool-info"><h2>模拟量与温度转换</h2><p>计算两点线性校准系数，并支持 STM32F103 内部温度传感器 AD 值转换。</p></div>
-                    <div class="tool-meta"><span>采集与校准</span><span class="open-action">打开工具 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span></div>
+                    <div class="card-top">
+                        <div class="icon-wrapper">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="18" y1="20" x2="18" y2="10"/>
+                                <line x1="12" y1="20" x2="12" y2="4"/>
+                                <line x1="6" y1="20" x2="6" y2="14"/>
+                                <line x1="2" y1="20" x2="22" y2="20"/>
+                            </svg>
+                        </div>
+                        <span class="module-code">ADC-04</span>
+                    </div>
+                    <div class="tool-info">
+                        <h3>模拟量与温度转换</h3>
+                        <p>求解两点线性标定校准系数（Slope/Offset），支持 STM32 内部温度传感器采样值快速转换。</p>
+                    </div>
+                    <div class="tool-meta">
+                        <span class="meta-tag">采集与校准</span>
+                        <span class="open-action">进入工具 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m9 18 6-6-6-6"/></svg></span>
+                    </div>
                 </a>
+
                 <a href="典型波形展示/index.html" class="tool-card card-can">
-                    <div class="card-top"><div class="icon-wrapper"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12h3l2-6 4 12 3-9 2 3h4"/></svg></div><span class="module-code">CAN-05</span></div>
-                    <div class="tool-info"><h2>典型波形展示</h2><p>生成标准帧或扩展帧 CAN 2.0 波形，查看示波器上的 CAN_H、CAN_L 电平。</p></div>
-                    <div class="tool-meta"><span>总线与波形</span><span class="open-action">打开工具 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></span></div>
+                    <div class="card-top">
+                        <div class="icon-wrapper">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M2 12h4l3-9 4 18 3-9h6"/>
+                            </svg>
+                        </div>
+                        <span class="module-code">CAN-05</span>
+                    </div>
+                    <div class="tool-info">
+                        <h3>典型波形展示</h3>
+                        <p>生成标准帧与扩展帧 CAN 2.0 逻辑与物理波形，直观模拟示波器上的 CAN_H 与 CAN_L 差分电平。</p>
+                    </div>
+                    <div class="tool-meta">
+                        <span class="meta-tag">总线与波形</span>
+                        <span class="open-action">进入工具 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m9 18 6-6-6-6"/></svg></span>
+                    </div>
                 </a>
             </section>
         </main>
+
+        <footer class="platform-footer">
+            Embedded Tools &bull; 现代化的嵌入式工程师专属工具箱
+        </footer>
     </div>
 </body>
 </html>

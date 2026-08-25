@@ -1,21 +1,23 @@
 :root {
-    --platform-bg: #f3f6f7;
+    --platform-bg: #f8fafc;
     --platform-surface: #ffffff;
-    --platform-surface-subtle: #f8faf9;
-    --platform-border: #d9e2e3;
-    --platform-border-strong: #bdccce;
-    --platform-text: #14282d;
-    --platform-muted: #607579;
-    --platform-brand: #087f7b;
-    --platform-brand-strong: #066a67;
-    --platform-brand-soft: #e4f3f1;
-    --platform-navy: #18343a;
-    --platform-success: #287a50;
-    --platform-warning: #a85d08;
-    --platform-danger: #b83a35;
-    --platform-shadow: 0 1px 2px rgba(20, 40, 45, 0.05), 0 8px 24px rgba(20, 40, 45, 0.05);
-    --platform-radius: 7px;
-    --platform-font: Inter, "Noto Sans SC", "Microsoft YaHei", "Segoe UI", sans-serif;
+    --platform-surface-subtle: #f1f5f9;
+    --platform-border: #e2e8f0;
+    --platform-border-strong: #cbd5e1;
+    --platform-text: #0f172a;
+    --platform-muted: #64748b;
+    --platform-brand: #0284c7;
+    --platform-brand-strong: #0369a1;
+    --platform-brand-soft: #e0f2fe;
+    --platform-navy: #0f172a;
+    --platform-success: #10b981;
+    --platform-warning: #f59e0b;
+    --platform-danger: #ef4444;
+    --platform-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --platform-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+    --platform-shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.07), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
+    --platform-radius: 10px;
+    --platform-font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans SC", "Microsoft YaHei", sans-serif;
 }
 
 * { letter-spacing: 0; }
