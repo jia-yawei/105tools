@@ -1,195 +1,225 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ARM 时钟树精准配置台</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../platform.css">
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>时钟树配置 - Embedded Tools</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../platform.css">
+  <link rel="stylesheet" href="../tool.css">
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <header class="platform-bar">
-        <a class="platform-brand" href="../index.html" aria-label="Embedded Tools 首页">
-            <span class="platform-brand-mark">ET</span>
-            <span class="platform-brand-copy"><strong>Embedded Tools</strong><span>Engineering workspace</span></span>
-        </a>
-        <nav class="platform-nav" aria-label="平台导航">
-            <a href="../index.html">工作台</a>
-            <a href="../hex文件分析工具/index.html">HEX 分析</a>
-            <a class="active" href="index.html">时钟树</a>
-            <a href="../过流保护计算/index.html">过流保护</a>
-            <a href="../模拟量校准计算/index.html">模拟量校准</a>
-            <a href="../典型波形展示/index.html">典型波形</a>
-        </nav>
-    </header>
-    <div class="app-layout">
-        <!-- 顶栏 -->
-        <header class="top-bar">
-            <div class="brand">
-                <div class="logo-icon" aria-hidden="true">CLK</div>
-                <div><span class="context-label">CLOCK CONFIGURATION</span><h1>ARM 时钟树可视化工作台</h1></div>
+  <header class="platform-bar">
+    <a class="platform-brand" href="../index.html" aria-label="Embedded Tools 首页">
+      <span class="platform-brand-mark">ET</span>
+      <span class="platform-brand-copy"><strong>Embedded Tools</strong><span>Engineering workspace</span></span>
+    </a>
+    <nav class="platform-nav" aria-label="平台导航">
+      <a href="../index.html">工作台</a>
+      <a href="../hex文件分析工具/index.html">HEX 分析</a>
+      <a class="active" href="index.html">时钟树</a>
+      <a href="../过流保护计算/index.html">过流保护</a>
+      <a href="../模拟量校准计算/index.html">模拟量校准</a>
+      <a href="../典型波形展示/index.html">典型波形</a>
+    </nav>
+  </header>
+
+  <main class="tool-main clock-tool-main">
+    <section class="hero">
+      <div class="hero-main">
+        <span class="hero-eyebrow"><span class="dot"></span>CLOCK CONFIGURATION</span>
+        <h1>ARM 时钟树精准配置台</h1>
+        <p>时钟源 · PLL · 总线分频 实时仿真</p>
+      </div>
+      <span class="hero-badge" id="mcuBadge">GD32F405 / STM32F407</span>
+    </section>
+
+    <section class="tool clock-tool" aria-label="ARM 时钟树配置器">
+      <div class="panel input-panel clock-input-panel">
+        <h2>时钟源与配置</h2>
+
+        <div class="field-grid">
+          <label>
+            芯片型号
+            <span class="input-wrap"><select id="mcu-select" class="field-select"><option value="GD32F405" selected>GD32F405 / STM32F407</option><option value="STM32F103">STM32F103 系列</option></select></span>
+          </label>
+          <label id="hse-input-wrapper">
+            晶振频率
+            <span class="input-wrap"><select id="hse-freq" class="field-select"><option value="8">8 MHz</option><option value="16">16 MHz</option></select><span class="unit">MHz</span></span>
+          </label>
+        </div>
+
+        <div class="clock-field-row">
+          <span class="field-caption">时钟源</span>
+          <div class="radio-toggle">
+            <input type="radio" id="src-hse" name="clock-src" value="HSE" checked>
+            <label for="src-hse">外部 HXTAL</label>
+            <input type="radio" id="src-hsi" name="clock-src" value="HSI">
+            <label for="src-hsi">内部 IRC</label>
+          </div>
+        </div>
+
+        <details>
+          <summary>PLL 锁相环参数</summary>
+          <div id="pll-settings">
+            <div id="pll-dynamic-controls"></div>
+            <div class="formula-box" id="pll-formula-box"></div>
+          </div>
+        </details>
+
+        <h2>总线分频 (CFG0)</h2>
+        <div class="prescaler-grid">
+          <label class="pre-cell">
+            <span class="pre-name">AHBPSC</span>
+            <span class="input-wrap pre-input-wrap"><input id="ahb-pre" type="text" class="hex-input" value="0x00"><span class="pre-tag" id="ahb-text">/1</span></span>
+          </label>
+          <label class="pre-cell">
+            <span class="pre-name">APB1PSC</span>
+            <span class="input-wrap pre-input-wrap"><input id="apb1-pre" type="text" class="hex-input" value="0x05"><span class="pre-tag" id="apb1-text">/4</span></span>
+          </label>
+          <label class="pre-cell">
+            <span class="pre-name">APB2PSC</span>
+            <span class="input-wrap pre-input-wrap"><input id="apb2-pre" type="text" class="hex-input" value="0x04"><span class="pre-tag" id="apb2-text">/2</span></span>
+          </label>
+        </div>
+
+        <div class="actions">
+          <button id="resetDefaults" type="button" class="secondary">恢复默认</button>
+        </div>
+
+        <div class="clock-note" aria-hidden="true">
+          <span class="note-label">时钟链路</span>
+          <span class="note-flow">HXTAL / IRC → PLL → CK_SYS → HCLK → APB1 / APB2</span>
+        </div>
+      </div>
+
+      <div class="panel result-panel clock-result-panel">
+        <h2>总线时钟</h2>
+
+        <div class="clock-metrics">
+          <div class="metric-card sysclk-card">
+            <span class="m-label">系统主频 CK_SYS</span>
+            <div class="m-val"><span id="out-sysclk">168.00</span> <small>MHz</small></div>
+            <div class="limit-warning" id="warn-sysclk">&#x26A0; 超限 (&lt;<span id="max-sysclk">168</span>M)</div>
+          </div>
+          <div class="metric-card hclk-card">
+            <span class="m-label">AHB 总线 HCLK</span>
+            <div class="m-val"><span id="out-hclk">168.00</span> <small>MHz</small></div>
+            <div class="limit-warning" id="warn-hclk">&#x26A0; 超限 (&lt;<span id="max-ahb">168</span>M)</div>
+          </div>
+          <div class="metric-card" id="domain-apb1">
+            <span class="m-label">APB1 低速总线</span>
+            <div class="m-val"><span id="badge-pclk1">42.00</span> <small>MHz</small></div>
+            <div class="sub-val" id="badge-tim1">定时器: 84.00 MHz</div>
+            <div class="limit-warning" id="warn-apb1">&#x26A0; 超限 (&lt;<span id="max-apb1">42</span>M)</div>
+          </div>
+          <div class="metric-card" id="domain-apb2">
+            <span class="m-label">APB2 高速总线</span>
+            <div class="m-val"><span id="badge-pclk2">84.00</span> <small>MHz</small></div>
+            <div class="sub-val" id="badge-tim2">定时器: 168.00 MHz</div>
+            <div class="limit-warning" id="warn-apb2">&#x26A0; 超限 (&lt;<span id="max-apb2">84</span>M)</div>
+          </div>
+        </div>
+
+        <div class="clock-section">
+          <div class="section-title">总线外设列表</div>
+          <div class="bus-columns">
+            <div class="bus-col">
+              <div class="col-header">AHB 外设</div>
+              <div class="peripheral-tags" id="list-ahb"></div>
             </div>
-            <div class="top-mcu-select">
-                <label for="mcu-select">芯片型号:</label>
-                <select id="mcu-select" class="compact-input">
-                    <option value="GD32F405" selected>GD32F405 / STM32F407</option>
-                    <option value="STM32F103">STM32F103 系列</option>
-                </select>
+            <div class="bus-col">
+              <div class="col-header">APB1 外设</div>
+              <div class="peripheral-tags" id="list-apb1"></div>
             </div>
-        </header>
+            <div class="bus-col">
+              <div class="col-header">APB2 外设</div>
+              <div class="peripheral-tags" id="list-apb2"></div>
+            </div>
+          </div>
+        </div>
 
-        <!-- 主界面双列视口 -->
-        <main class="main-viewport">
-            <!-- 左侧控制面板 -->
-            <aside class="sidebar-panel">
-                <div class="section-title">时钟源配置</div>
-                <div class="control-block">
-                    <div class="radio-toggle">
-                        <input type="radio" id="src-hse" name="clock-src" value="HSE" checked>
-                        <label for="src-hse">外部 HXTAL</label>
-                        <input type="radio" id="src-hsi" name="clock-src" value="HSI">
-                        <label for="src-hsi">内部 IRC</label>
-                    </div>
-                    <div class="input-row mt-compact" id="hse-input-wrapper">
-                        <label for="hse-freq">晶振频率:</label>
-                        <select id="hse-freq" class="compact-input">
-                            <option value="8" selected>8 MHz</option>
-                            <option value="16">16 MHz</option>
-                        </select>
-                    </div>
+        <div class="clock-section">
+          <div class="section-title">外设波特率计算</div>
+          <div class="calc-row">
+            <div class="calc-box">
+              <div class="box-title">SPI</div>
+              <div class="inline-inputs">
+                <div class="in-group">
+                  <label>总线</label>
+                  <select id="spi-bus" class="field-select-sm"><option value="apb2">SPI1 (APB2)</option><option value="apb1">SPI2/3 (APB1)</option></select>
                 </div>
-
-                <div class="section-title">PLL 锁相环参数</div>
-                <div class="control-block" id="pll-settings">
-                    <div id="pll-dynamic-controls"></div>
-                    <div class="formula-box" id="pll-formula-box"></div>
+                <div class="in-group">
+                  <label>分频</label>
+                  <select id="spi-br" class="field-select-sm"><option value="2">Prescaler_2</option><option value="4">Prescaler_4</option><option value="8">Prescaler_8</option><option value="16">Prescaler_16</option><option value="32">Prescaler_32</option><option value="64">Prescaler_64</option><option value="128">Prescaler_128</option><option value="256">Prescaler_256</option></select>
                 </div>
-
-                <div class="section-title">总线分频器 (CFG0)</div>
-                <div class="control-block">
-                    <div class="pre-grid">
-                        <div class="pre-cell">
-                            <label for="ahb-pre">AHBPSC</label>
-                            <input type="text" id="ahb-pre" class="compact-input" value="0x00">
-                            <span class="pre-tag" id="ahb-text">/1</span>
-                        </div>
-                        <div class="pre-cell">
-                            <label for="apb1-pre">APB1PSC</label>
-                            <input type="text" id="apb1-pre" class="compact-input" value="0x05">
-                            <span class="pre-tag" id="apb1-text">/4</span>
-                        </div>
-                        <div class="pre-cell">
-                            <label for="apb2-pre">APB2PSC</label>
-                            <input type="text" id="apb2-pre" class="compact-input" value="0x04">
-                            <span class="pre-tag" id="apb2-text">/2</span>
-                        </div>
-                    </div>
+              </div>
+              <div class="calc-out" id="spi-res">实际波特率: <span style="color:var(--platform-brand)">84.000 MHz</span></div>
+              <div class="mini-formula" id="spi-form">Baud = PCLK / Prescaler<br>Baud = 168.00 / 2</div>
+            </div>
+            <div class="calc-box">
+              <div class="box-title">CAN</div>
+              <div class="inline-inputs">
+                <div class="in-group">
+                  <label>Prescaler</label>
+                  <input type="number" id="can-brp" class="num-input" value="4" min="1">
                 </div>
-            </aside>
-
-            <!-- 右侧核心仪表与分析图表 -->
-            <section class="workspace-panel">
-                <!-- 顶部关键指标栏 -->
-                <div class="metrics-bar">
-                    <div class="metric-card sysclk-card">
-                        <span class="m-label">系统主频 (CK_SYS)</span>
-                        <div class="m-val"><span id="out-sysclk">168.00</span> <small>MHz</small></div>
-                        <div class="limit-warning" id="warn-sysclk">⚠ 超限 (<span id="max-sysclk">168</span>M)</div>
-                    </div>
-                    <div class="metric-card hclk-card">
-                        <span class="m-label">AHB总线 (HCLK)</span>
-                        <div class="m-val"><span id="out-hclk">168.00</span> <small>MHz</small></div>
-                        <div class="limit-warning" id="warn-hclk">⚠ 超限 (<span id="max-ahb">168</span>M)</div>
-                    </div>
-                    <div class="metric-card pclk1-card">
-                        <span class="m-label">APB1低速总线</span>
-                        <div class="m-val"><span id="badge-pclk1">42 MHz</span></div>
-                        <div class="sub-val" id="badge-tim1">TIM: 84 MHz</div>
-                        <div class="limit-warning" id="warn-apb1">⚠ 超限 (<span id="max-apb1">42</span>M)</div>
-                    </div>
-                    <div class="metric-card pclk2-card">
-                        <span class="m-label">APB2高速总线</span>
-                        <div class="m-val"><span id="badge-pclk2">84 MHz</span></div>
-                        <div class="sub-val" id="badge-tim2">TIM: 168 MHz</div>
-                        <div class="limit-warning" id="warn-apb2">⚠ 超限 (<span id="max-apb2">84</span>M)</div>
-                    </div>
+                <div class="in-group">
+                  <label>BS1</label>
+                  <input type="number" id="can-bs1" class="num-input" value="8" min="1" max="16">
                 </div>
-
-                <!-- 中部总线挂载外设视图 (三列) -->
-                <div class="bus-columns">
-                    <div class="bus-col" id="domain-ahb">
-                        <div class="col-header">AHB 外设列表</div>
-                        <div class="peripheral-tags" id="list-ahb"></div>
-                    </div>
-                    <div class="bus-col" id="domain-apb1">
-                        <div class="col-header">APB1 外设列表</div>
-                        <div class="peripheral-tags" id="list-apb1"></div>
-                    </div>
-                    <div class="bus-col" id="domain-apb2">
-                        <div class="col-header">APB2 外设列表</div>
-                        <div class="peripheral-tags" id="list-apb2"></div>
-                    </div>
+                <div class="in-group">
+                  <label>BS2</label>
+                  <input type="number" id="can-bs2" class="num-input" value="5" min="1" max="8">
                 </div>
+              </div>
+              <div class="calc-out" id="can-res">波特率: <span style="color:var(--platform-brand)">1000.0 kbps</span> <span style="margin:0 6px;opacity:.3">|</span> 采样点: <span style="color:var(--platform-brand-strong)">64.29%</span></div>
+              <div class="mini-formula" id="can-form">Baud = PCLK1 / (Prescaler × (1+BS1+BS2))<br>= 42.00MHz / (4 × 14)</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
 
-                <!-- 底部计算引擎视图 (两列) -->
-                <div class="calc-row">
-                    <div class="calc-box">
-                        <div class="box-title">SPI 波特率计算</div>
-                        <div class="inline-inputs">
-                            <div class="in-group">
-                                <label>总线</label>
-                                <select id="spi-bus" class="compact-input">
-                                    <option value="apb2">SPI1 (APB2)</option>
-                                    <option value="apb1">SPI2/3 (APB1)</option>
-                                </select>
-                            </div>
-                            <div class="in-group">
-                                <label>分频</label>
-                                <select id="spi-br" class="compact-input">
-                                    <option value="2">Prescaler_2</option>
-                                    <option value="4">Prescaler_4</option>
-                                    <option value="8">Prescaler_8</option>
-                                    <option value="16">Prescaler_16</option>
-                                    <option value="32">Prescaler_32</option>
-                                    <option value="64">Prescaler_64</option>
-                                    <option value="128">Prescaler_128</option>
-                                    <option value="256">Prescaler_256</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="calc-out" id="spi-res"></div>
-                        <div class="mini-formula" id="spi-form"></div>
-                    </div>
+  <span id="badge-hclk" style="display:none;"></span>
 
-                    <div class="calc-box">
-                        <div class="box-title">CAN 波特率计算</div>
-                        <div class="inline-inputs">
-                            <div class="in-group">
-                                <label>Prescaler</label>
-                                <input type="number" id="can-brp" class="compact-input" value="4">
-                            </div>
-                            <div class="in-group">
-                                <label>BS1</label>
-                                <input type="number" id="can-bs1" class="compact-input" value="8" min="1" max="16">
-                            </div>
-                            <div class="in-group">
-                                <label>BS2</label>
-                                <input type="number" id="can-bs2" class="compact-input" value="5" min="1" max="8">
-                            </div>
-                        </div>
-                        <div class="calc-out" id="can-res"></div>
-                        <div class="mini-formula" id="can-form"></div>
-                    </div>
-                </div>
-            </section>
-        </main>
-    </div>
+  <script src="app.js"></script>
 
-    <!-- 隐藏原 app.js 需要的未用 Node，防止报错 -->
-    <span id="badge-hclk" style="display:none;"></span>
-
-    <script src="app.js"></script>
+  <script>
+  document.getElementById('mcu-select').addEventListener('change', function() {
+    document.getElementById('mcuBadge').textContent = this.options[this.selectedIndex].text;
+  });
+  document.getElementById('resetDefaults').addEventListener('click', function() {
+    var s = document.getElementById('mcu-select');
+    s.value = 'GD32F405'; s.dispatchEvent(new Event('change'));
+    document.getElementById('src-hse').checked = true;
+    document.getElementById('src-hse').dispatchEvent(new Event('change'));
+    document.getElementById('hse-freq').value = '8';
+    document.getElementById('hse-freq').dispatchEvent(new Event('change'));
+    var psc = document.getElementById('pll-psc'); if (psc) { psc.value = '0x08'; psc.dispatchEvent(new Event('input')); }
+    var pn = document.getElementById('pll-n'); if (pn) { pn.value = '0x0090'; pn.dispatchEvent(new Event('input')); }
+    var pp = document.getElementById('pll-p'); if (pp) { pp.value = '0x00'; pp.dispatchEvent(new Event('input')); }
+    var pq = document.getElementById('pll-q'); if (pq) { pq.value = '0x07'; pq.dispatchEvent(new Event('input')); }
+    var pm = document.getElementById('pll-mul'); if (pm) { pm.value = '9'; pm.dispatchEvent(new Event('input')); }
+    document.getElementById('ahb-pre').value = '0x00';
+    document.getElementById('ahb-pre').dispatchEvent(new Event('input'));
+    document.getElementById('apb1-pre').value = '0x05';
+    document.getElementById('apb1-pre').dispatchEvent(new Event('input'));
+    document.getElementById('apb2-pre').value = '0x04';
+    document.getElementById('apb2-pre').dispatchEvent(new Event('input'));
+    document.getElementById('spi-bus').value = 'apb2';
+    document.getElementById('spi-bus').dispatchEvent(new Event('change'));
+    document.getElementById('spi-br').value = '2';
+    document.getElementById('spi-br').dispatchEvent(new Event('change'));
+    document.getElementById('can-brp').value = '4';
+    document.getElementById('can-brp').dispatchEvent(new Event('input'));
+    document.getElementById('can-bs1').value = '8';
+    document.getElementById('can-bs1').dispatchEvent(new Event('input'));
+    document.getElementById('can-bs2').value = '5';
+    document.getElementById('can-bs2').dispatchEvent(new Event('input'));
+  });
+  </script>
 </body>
 </html>
