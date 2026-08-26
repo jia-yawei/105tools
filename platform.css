@@ -31,12 +31,12 @@ body {
 button, input, select { font-family: inherit; }
 
 .platform-bar {
-    min-height: 58px;
+    min-height: 50px;
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 24px;
-    padding: 0 24px;
+    padding: 0 20px;
     background: var(--platform-surface);
     border-bottom: 1px solid var(--platform-border);
     color: var(--platform-text);
