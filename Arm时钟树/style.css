@@ -1,57 +1,56 @@
-/* Clock tree page - tool.css addenda, compact one-page layout */
+/* Clock tree page - balanced configuration workspace */
 .clock-tool-main {
-  height: calc(100vh - 50px);
-  min-height: 0;
+  min-height: calc(100vh - 50px);
   box-sizing: border-box;
-  padding: 8px 0;
-  overflow: hidden;
+  padding: 16px 0 24px;
 }
 .clock-tool {
+  flex: 0 0 auto;
   min-height: 0;
-  overflow: hidden;
 }
 
 /* Result panel takes the majority width; inputs stay compact */
 @media (min-width: 761px) {
   .clock-tool {
-    grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+    grid-template-columns: minmax(340px, 0.9fr) minmax(0, 1.1fr);
   }
 }
 .clock-tool .panel {
-  overflow-y: auto;
-  overscroll-behavior: contain;
+  overflow: visible;
 }
 
 /* ---- Compact hero for one-page fit ---- */
 .clock-tool-main .hero {
-  padding: 8px 18px;
-  margin-bottom: 8px;
-  border-radius: 12px;
+  padding: 14px 20px;
+  margin-bottom: 14px;
+  border-radius: 14px;
 }
 .clock-tool-main .hero-eyebrow {
-  padding: 2px 9px;
-  font-size: 9px;
+  padding: 3px 10px;
+  font-size: 10px;
 }
 .clock-tool-main .hero h1 {
-  margin: 4px 0 2px;
-  font-size: 16px;
+  margin: 5px 0 3px;
+  font-size: 19px;
 }
 .clock-tool-main .hero p {
-  font-size: 11.5px;
+  font-size: 12.5px;
 }
 .clock-tool-main .hero-badge {
-  padding: 4px 10px;
-  font-size: 10.5px;
+  padding: 6px 12px;
+  font-size: 11.5px;
 }
 
 /* ---- Input panel: distribute space, pin note to bottom ---- */
 .clock-input-panel {
   display: flex;
   flex-direction: column;
+  gap: 0;
 }
+.clock-input-panel > h2:not(:first-child) { margin-top: 22px; }
 .clock-note {
-  margin-top: auto;
-  padding: 8px 10px;
+  margin-top: 22px;
+  padding: 10px 12px;
   border: 1px dashed var(--platform-border-strong);
   border-radius: 8px;
   background: var(--tool-soft-bg);
@@ -68,13 +67,13 @@
   display: block;
   margin-top: 3px;
   color: var(--tool-code-ink);
-  font: 600 11px/1.5 Consolas, "Courier New", monospace;
+  font: 600 11.5px/1.55 Consolas, "Courier New", monospace;
 }
 
 /* ---- Shared-style controls ---- */
 .field-select {
   width: 100%;
-  height: 32px;
+  height: 36px;
   padding: 0 8px;
   border: 1.5px solid var(--tool-input-border);
   border-radius: 6px;
@@ -82,7 +81,7 @@
   background: #fff;
   color: var(--platform-text);
   font-family: inherit;
-  font-size: 12.5px;
+  font-size: 13px;
   font-weight: 600;
   cursor: pointer;
 }
@@ -97,12 +96,12 @@
 
 /* ---- Clock source radio ---- */
 .clock-field-row {
-  margin: 8px 0 0;
+  margin: 14px 0 0;
 }
 .field-caption {
   display: block;
   color: var(--tool-label);
-  font-size: 11.5px;
+  font-size: 12px;
   font-weight: 600;
   margin-bottom: 3px;
 }
@@ -118,9 +117,9 @@
 .radio-toggle label {
   flex: 1;
   text-align: center;
-  padding: 5px 8px;
+  padding: 7px 8px;
   border-radius: 5px;
-  font-size: 12px;
+  font-size: 12.5px;
   font-weight: 700;
   color: var(--platform-muted);
   cursor: pointer;
@@ -136,7 +135,7 @@
 .prescaler-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
+  gap: 10px;
 }
 .pre-cell {
   display: block;
@@ -149,10 +148,10 @@
   margin-bottom: 3px;
 }
 .pre-input-wrap input {
-  height: 30px;
+  height: 34px;
   padding: 0 40px 0 8px;
   text-align: center;
-  font-size: 12px;
+  font-size: 12.5px;
   font-family: Consolas, "Courier New", monospace;
 }
 .pre-tag {
@@ -188,15 +187,16 @@
   margin-bottom: 2px;
 }
 
-/* ---- Metrics: 4 in a row ---- */
+/* ---- Metrics: spacious 2 x 2 summary ---- */
 .clock-metrics {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 8px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
 }
 .metric-card {
   position: relative;
-  padding: 6px 8px;
+  min-height: 78px;
+  padding: 11px 12px;
   border: 1px solid var(--platform-border);
   border-radius: 8px;
   background: #fff;
@@ -209,25 +209,25 @@
 .m-label {
   display: block;
   color: var(--platform-muted);
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 700;
 }
 .m-val {
-  margin-top: 1px;
-  font-size: 15px;
+  margin-top: 4px;
+  font-size: 21px;
   font-weight: 800;
   font-variant-numeric: tabular-nums;
   color: var(--platform-text);
   line-height: 1.1;
 }
 .m-val small {
-  font-size: 10px;
+  font-size: 11px;
   color: var(--platform-brand);
   font-weight: 700;
 }
 .sub-val {
-  margin-top: 0;
-  font-size: 9.5px;
+  margin-top: 3px;
+  font-size: 10.5px;
   color: var(--platform-muted);
   font-weight: 600;
 }
@@ -235,19 +235,19 @@
   display: none;
   margin-top: 2px;
   color: var(--tool-danger);
-  font-size: 9.5px;
+  font-size: 10px;
   font-weight: 700;
 }
 .limit-warning.show { display: block; }
 
 /* ---- Sections ---- */
-.clock-section { margin-top: 6px; }
+.clock-section { margin-top: 18px; }
 .section-title {
   display: flex;
   align-items: center;
   gap: 6px;
-  margin-bottom: 4px;
-  font-size: 12px;
+  margin-bottom: 8px;
+  font-size: 13px;
   font-weight: 700;
   color: var(--tool-label);
 }
@@ -264,36 +264,36 @@
 .bus-columns {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 6px;
+  gap: 8px;
 }
 .bus-col {
-  padding: 5px 7px;
+  padding: 8px 9px;
   border: 1px solid var(--platform-border);
   border-radius: 8px;
   background: var(--tool-soft-bg);
-  min-height: 48px;
+  min-height: 64px;
   transition: border-color 0.18s;
 }
 .bus-col.error {
   border-color: var(--tool-danger);
 }
 .col-header {
-  margin-bottom: 3px;
-  font-size: 10px;
+  margin-bottom: 6px;
+  font-size: 11px;
   font-weight: 700;
   color: var(--platform-muted);
 }
 .peripheral-tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 2px;
+  gap: 4px;
 }
 .peripheral-item {
-  padding: 1px 4px;
+  padding: 3px 6px;
   border: 1px solid var(--platform-border);
   border-radius: 4px;
   background: #fff;
-  font: 600 9px Consolas, "Courier New", monospace;
+  font: 600 10px Consolas, "Courier New", monospace;
   color: var(--platform-text);
 }
 
@@ -301,24 +301,24 @@
 .calc-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 8px;
+  gap: 10px;
 }
 .calc-box {
-  padding: 6px 8px;
+  padding: 11px 12px;
   border: 1px solid var(--platform-border);
   border-radius: 8px;
   background: #fff;
 }
 .calc-box .box-title {
-  margin-bottom: 5px;
-  font-size: 11px;
+  margin-bottom: 8px;
+  font-size: 12px;
   font-weight: 700;
   color: var(--platform-brand-strong);
 }
 .inline-inputs {
   display: flex;
   flex-wrap: wrap;
-  gap: 5px 8px;
+  gap: 7px 10px;
 }
 .in-group {
   display: flex;
@@ -353,19 +353,19 @@
   box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.12);
 }
 .calc-out {
-  margin-top: 4px;
-  font-size: 11.5px;
+  margin-top: 8px;
+  font-size: 12px;
   font-weight: 800;
   color: var(--platform-text);
   line-height: 1.3;
 }
 .mini-formula {
-  margin-top: 4px;
-  padding: 3px 6px;
+  margin-top: 7px;
+  padding: 6px 8px;
   border-radius: 6px;
   background: var(--tool-soft-bg);
   border: 1px solid var(--platform-border);
-  font: 9.5px/1.4 Consolas, "Courier New", monospace;
+  font: 10px/1.5 Consolas, "Courier New", monospace;
   color: var(--platform-muted);
   overflow-wrap: anywhere;
 }
@@ -376,7 +376,7 @@
 
 /* ---- Responsive ---- */
 @media (max-width: 860px) {
-  .clock-tool-main { height: auto; overflow: visible; }
+  .clock-tool-main { min-height: 0; overflow: visible; }
   .clock-tool { overflow: visible; }
   .clock-tool .panel { overflow-y: visible; }
   .clock-metrics { grid-template-columns: 1fr 1fr; }
